@@ -16,7 +16,7 @@ def create_app():
 
     @app.get("/salud")
     def salud():
-        return jsonify(estado="ok")
+        return jsonify(estado="OK")
 
     @app.get("/version")
     def version():
