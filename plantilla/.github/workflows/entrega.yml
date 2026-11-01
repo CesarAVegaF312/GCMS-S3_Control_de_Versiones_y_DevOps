@@ -1,0 +1,101 @@
+# Entrega continua: corre al subir una etiqueta vMAYOR.MENOR.PARCHE.
+# La imagen se construye una sola vez y la misma imagen pasa por staging y por producción.
+name: Entrega
+on:
+  push:
+    tags: ["v*.*.*"]
+permissions:
+  contents: read
+concurrency:
+  group: entrega-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: La etiqueta coincide con la versión declarada y el registro de cambios
+        run: python scripts/verificar_version.py "${{ github.ref_name }}"
+
+  pruebas:
+    needs: verificar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q
+
+  publicar-imagen:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      imagen: ${{ steps.publicar.outputs.imagen }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Construir y publicar en GitHub Container Registry
+        id: publicar
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          REPO="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build --build-arg COMMIT_SHA="$GITHUB_SHA" -t "$REPO:${VERSION#v}" -t "$REPO:$GITHUB_SHA" .
+          docker push "$REPO:${VERSION#v}"
+          docker push "$REPO:$GITHUB_SHA"
+          # El digest identifica la imagen sin ambigüedad: es lo que se despliega en los pasos siguientes.
+          echo "imagen=$(docker inspect --format '{{index .RepoDigests 0}}' "$REPO:$GITHUB_SHA")" >> "$GITHUB_OUTPUT"
+
+  staging:
+    needs: publicar-imagen
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Desplegar la imagen publicada y probarla
+        env:
+          IMAGEN: ${{ needs.publicar-imagen.outputs.imagen }}
+        run: |
+          docker run -d --name servicio -p 8000:8000 "$IMAGEN"
+          scripts/prueba_humo.sh http://localhost:8000 "$GITHUB_SHA"
+
+  produccion:
+    needs: [publicar-imagen, staging]
+    runs-on: ubuntu-latest
+    # Configure en Settings → Environments → produccion las personas que deben aprobar este paso.
+    environment: produccion
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Publicar la entrega con sus notas
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+          IMAGEN: ${{ needs.publicar-imagen.outputs.imagen }}
+        run: |
+          python scripts/notas_version.py "$VERSION" > notas.md
+          printf '\n\nImagen: `%s`\n' "$IMAGEN" >> notas.md
+          gh release create "$VERSION" --title "$VERSION" --notes-file notas.md
