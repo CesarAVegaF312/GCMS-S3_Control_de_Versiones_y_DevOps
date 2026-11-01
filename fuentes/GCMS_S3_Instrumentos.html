@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>GCMS S3 · Instrumentos F-15 a F-21</title>
+<link rel="stylesheet" href="documentos.css"/>
+</head>
+<body>
+
+<div class="portada">
+  <div class="kicker">Gestión de Configuración y Mantenimiento de Software · Unidad 3</div>
+  <h1>Instrumentos F-15 a F-21</h1>
+  <div class="sub">Control de versiones y automatización (DevOps) · Maestría en Ingeniería de Software, Universidad de La Sabana</div>
+</div>
+
+<p>Estos siete formatos preparan la Actividad 3. Se llenan en grupo, sobre el mismo sistema de las unidades
+anteriores, y la mayoría se puede llenar mientras se trabaja: el F-19 en especial. <b>No se suben a la
+plataforma</b>: son el borrador del documento o del README.</p>
+
+<table>
+  <thead><tr><th>Formato</th><th>Qué prepara</th><th>Viene de la Unidad 2</th></tr></thead>
+  <tbody>
+    <tr><td><b>F-15</b> Repositorio y convenciones</td><td>Estructura, commits, protección de ramas y roles</td><td>F-08, F-13</td></tr>
+    <tr><td><b>F-16</b> Estrategia de ramas</td><td>Qué estrategia, por qué y cómo se aplicó</td><td>F-09</td></tr>
+    <tr><td><b>F-17</b> Versionamiento y entregas</td><td>Reglas de versión, etiquetas y registro de cambios</td><td>F-09, F-10</td></tr>
+    <tr><td><b>F-18</b> Diseño del pipeline</td><td>Etapas, disparadores, artefactos, entornos y aprobaciones</td><td>F-10, F-11</td></tr>
+    <tr><td><b>F-19</b> Registro de evidencias</td><td>Ejecuciones, PR, versiones y capturas</td><td>F-12</td></tr>
+    <tr><td><b>F-20</b> Métricas de entrega</td><td>Frecuencia y tiempo de entrega en el período del curso</td><td>—</td></tr>
+    <tr><td><b>F-21</b> Verificación previa</td><td>Que todo funcione y se pueda mostrar</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-15 -->
+<div class="salto"></div>
+<div class="formato-cab"><h2>Repositorio y convenciones</h2><span class="codigo">F-15</span></div>
+<table>
+  <tbody>
+    <tr><td class="campo">Enlace al repositorio y plataforma (GitHub o GitLab)</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Estructura de carpetas y qué va en cada una</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Qué ignora el repositorio (.gitignore) y por qué</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Convención de mensajes de commit (por ejemplo, Conventional Commits) y un ejemplo real</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Convención de nombres de ramas de trabajo</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Protección de la rama principal: PR obligatorio, revisiones, verificaciones exigidas</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Dónde quedan escritos los roles (README, CODEOWNERS)</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Plantillas de issue y de PR</td><td class="vacio"></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-16 -->
+<div class="formato-cab" style="margin-top:22pt"><h2>Estrategia de ramas</h2><span class="codigo">F-16</span></div>
+<table>
+  <tbody>
+    <tr><td class="campo">Estrategia elegida (GitFlow, flujo de GitHub, desarrollo en tronco, rama de mantenimiento, otra)</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Por qué es adecuada para este sistema y este equipo</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Qué cambiaría si el equipo creciera a diez personas</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Ramas permanentes y su propósito</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Cómo entra un cambio: de la rama de trabajo a la principal</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Cómo se corrige con urgencia una versión ya entregada</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Diferencias con lo diseñado en la Unidad 2 y por qué</td><td class="vacio"></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-17 -->
+<div class="salto"></div>
+<div class="formato-cab"><h2>Versionamiento y entregas</h2><span class="codigo">F-17</span></div>
+<table>
+  <tbody>
+    <tr><td class="campo">Qué es la interfaz pública del sistema (lo que el número de versión protege)</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Cuándo sube la versión MAYOR, en este sistema</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Cuándo sube la MENOR</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Cuándo sube el PARCHE</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Formato de las etiquetas y dónde se declara la versión</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Formato del registro de cambios</td><td class="vacio"></td></tr>
+  </tbody>
+</table>
+<h3>Versiones publicadas</h3>
+<table>
+  <thead><tr><th style="width:12%">Versión</th><th style="width:14%">Fecha</th><th style="width:34%">Qué cambió</th><th style="width:20%">Por qué ese número</th><th>Artefacto (imagen, paquete) y su identificador</th></tr></thead>
+  <tbody>
+    <tr><td class="vacio"></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="vacio"></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td class="vacio"></td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-18 -->
+<div class="formato-cab" style="margin-top:22pt"><h2>Diseño del pipeline</h2><span class="codigo">F-18</span></div>
+<table>
+  <thead><tr><th style="width:16%">Etapa</th><th style="width:18%">Disparador</th><th style="width:30%">Qué hace</th><th style="width:16%">Qué la hace fallar</th><th>Artefacto o resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Calidad</td><td class="vacio"></td><td></td><td></td><td></td></tr>
+    <tr><td>Pruebas</td><td class="vacio"></td><td></td><td></td><td></td></tr>
+    <tr><td>Construcción</td><td class="vacio"></td><td></td><td></td><td></td></tr>
+    <tr><td>Staging</td><td class="vacio"></td><td></td><td></td><td></td></tr>
+    <tr><td>Producción</td><td class="vacio"></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+<table>
+  <tbody>
+    <tr><td class="campo">Dónde se guardan los artefactos y cómo se identifican</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Quién aprueba el paso a producción y dónde está configurado</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Secretos que usa el pipeline y dónde viven (nunca en el repositorio)</td><td class="vacio"></td></tr>
+    <tr><td class="campo">Cómo se vuelve a la versión anterior</td><td class="vacio alto"></td></tr>
+    <tr><td class="campo">Cómo están fijadas las acciones y dependencias del pipeline</td><td class="vacio"></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-19 -->
+<div class="salto"></div>
+<div class="formato-cab"><h2>Registro de evidencias</h2><span class="codigo">F-19</span></div>
+<p>Se llena mientras se trabaja. Cada evidencia lleva un enlace que el docente pueda abrir; una captura sola no basta.</p>
+<table>
+  <thead><tr><th style="width:4%">#</th><th style="width:22%">Qué demuestra</th><th style="width:16%">Tipo</th><th style="width:30%">Enlace (ejecución, PR, commit, versión)</th><th style="width:12%">Fecha</th><th>Captura</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Una ejecución de CI en verde sobre un PR</td><td>Ejecución</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>2</td><td>Una ejecución fallida que bloqueó un cambio</td><td>Ejecución</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>3</td><td>La corrección de esa falla</td><td>PR y ejecución</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>4</td><td>Un PR revisado por otra persona</td><td>PR</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>5</td><td>La protección de la rama principal</td><td>Captura de configuración</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>6</td><td>Una versión entregada por el pipeline de entrega</td><td>Ejecución y versión</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>7</td><td>Un cambio rastreado de issue a versión</td><td>Issue, PR, commit, etiqueta</td><td class="vacio"></td><td></td><td></td></tr>
+    <tr><td>8</td><td class="vacio"></td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-20 -->
+<div class="formato-cab" style="margin-top:22pt"><h2>Métricas de entrega</h2><span class="codigo">F-20</span></div>
+<p>Con <code>python herramientas/entrega.py &lt;sistema&gt; --desde &lt;inicio del curso&gt;</code>. En un sistema con poca
+historia los números son pequeños; lo que importa es poder medirlos y explicarlos.</p>
+<table>
+  <thead><tr><th style="width:30%">Métrica</th><th style="width:20%">Valor</th><th>Lectura: qué explica el valor y qué haría falta para mejorarlo</th></tr></thead>
+  <tbody>
+    <tr><td>Versiones entregadas en el período</td><td class="vacio"></td><td></td></tr>
+    <tr><td>Tiempo de entrega de los cambios (mediana y percentil 75)</td><td class="vacio"></td><td></td></tr>
+    <tr><td>Versiones de corrección sobre el total</td><td class="vacio"></td><td></td></tr>
+    <tr><td>Commits que siguen la convención</td><td class="vacio"></td><td></td></tr>
+    <tr><td>Commits con referencia a issue o PR</td><td class="vacio"></td><td></td></tr>
+    <tr><td>Ramas de trabajo abiertas y su antigüedad</td><td class="vacio"></td><td></td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ F-21 -->
+<div class="salto"></div>
+<div class="formato-cab"><h2>Verificación previa a la entrega</h2><span class="codigo">F-21</span></div>
+<table>
+  <thead><tr><th style="width:76%">Verificación</th><th>Sí / No</th></tr></thead>
+  <tbody>
+    <tr><td>El repositorio es accesible para el docente</td><td></td></tr>
+    <tr><td>La rama principal está protegida y exige que la CI pase</td><td></td></tr>
+    <tr><td>Los commits siguen la convención declarada en el F-15</td><td></td></tr>
+    <tr><td>La estrategia de ramas está justificada y se ve aplicada en el historial</td><td></td></tr>
+    <tr><td>Hay al menos una versión publicada con etiqueta, registro de cambios y artefacto identificado</td><td></td></tr>
+    <tr><td>El pipeline tiene etapas de construcción, pruebas y despliegue, y corrió de verdad</td><td></td></tr>
+    <tr><td>Hay una ejecución fallida y su corrección entre las evidencias</td><td></td></tr>
+    <tr><td>Lo que llega a producción es el mismo artefacto que se probó en staging</td><td></td></tr>
+    <tr><td>Ningún secreto está en el repositorio</td><td></td></tr>
+    <tr><td>Un cambio se puede rastrear de issue a versión</td><td></td></tr>
+    <tr><td>Las diferencias con la estrategia de la Unidad 2 están explicadas</td><td></td></tr>
+    <tr><td>El documento tiene de 5 a 7 páginas, o es un README.md completo, y cita con norma APA 7</td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="pie-doc">GCMS · Unidad 3 · Instrumentos F-15 a F-21 · César Augusto Vega Fernández · Universidad de La Sabana ·
+Licencia CC BY-NC-SA 4.0</div>
+</body>
+</html>

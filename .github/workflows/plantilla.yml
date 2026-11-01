@@ -1,0 +1,76 @@
+# Corre la integración continua de la plantilla dentro del repositorio del curso, cada vez que la plantilla
+# cambia. Es el mismo flujo de plantilla/.github/workflows/ci.yml, con la carpeta plantilla/ como raíz.
+name: CI de la plantilla
+on:
+  pull_request:
+    paths: ["plantilla/**", ".github/workflows/plantilla.yml"]
+  push:
+    branches: [main]
+    paths: ["plantilla/**", ".github/workflows/plantilla.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: plantilla-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    working-directory: plantilla
+jobs:
+  calidad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: plantilla/requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Estilo y errores comunes
+        run: ruff check .
+      - name: Formato
+        run: ruff format --check .
+
+  pruebas:
+    needs: calidad
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: plantilla/requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q --junitxml=resultados-${{ matrix.python }}.xml
+      # Los resultados quedan como evidencia de la ejecución, aunque las pruebas fallen.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: resultados-${{ matrix.python }}
+          path: plantilla/resultados-${{ matrix.python }}.xml
+
+  imagen:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Construir la imagen
+        run: docker build --build-arg COMMIT_SHA=${{ github.sha }} -t servicio:${{ github.sha }} .
+      - name: Prueba de humo
+        run: |
+          docker run -d --name servicio -p 8000:8000 servicio:${{ github.sha }}
+          scripts/prueba_humo.sh http://localhost:8000 ${{ github.sha }}
+      - name: Registro del contenedor si algo falla
+        if: failure()
+        run: docker logs servicio

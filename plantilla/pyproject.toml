@@ -1,0 +1,15 @@
+[project]
+name = "servicio"
+version = "0.1.0"
+description = "Servicio de ejemplo de la plantilla de la Unidad 3 de GCMS"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]

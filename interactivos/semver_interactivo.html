@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>¿Qué versión sigue? — GCMS Unidad 3</title>
+<style>
+:root{
+  --osc:#1C2B33; --txt:#31424B; --gris:#5E6E76; --claro:#EFF2F3; --linea:#CFDAE0; --crema:#F6EAE1;
+  --coral:#C2622C; --teal:#46707E; --teal2:#34535D; --verde:#2F6B4C; --rojo:#A1352A; --foco:#0B63CE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#F3F5F6;color:var(--txt);font-size:16px;line-height:1.5}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.header{background:var(--osc);color:#fff;padding:16px 28px}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:13px;color:#9FB2BA;margin-top:2px}
+.header .encuadre{font-size:15px;color:#DCE6EA;margin-top:10px;max-width:1000px;border-left:4px solid var(--coral);padding-left:12px}
+.wrap{max-width:1000px;margin:22px auto 40px;padding:0 16px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(28,43,51,.08);padding:22px 26px;margin-bottom:18px}
+.card h2{font-size:19px;color:var(--osc);margin-bottom:6px}
+.reglas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.regla{border-radius:8px;padding:10px 12px;color:#fff;font-size:14px}
+.regla b{display:block;font-size:17px}
+.barra{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.progreso{font-size:14px;color:var(--gris);font-weight:700}
+.puntos{height:8px;background:var(--claro);border-radius:4px;overflow:hidden;flex:1;min-width:140px}
+.puntos i{display:block;height:100%;background:var(--coral);transition:width .3s}
+.actual{font-size:14px;color:var(--gris)}
+.actual code{font-size:15px;color:var(--osc);font-weight:700}
+.cambio{font-size:18px;font-weight:700;color:var(--osc);margin:6px 0 4px}
+.fuente{font-size:13.5px;color:var(--gris);margin-bottom:14px}
+.opciones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opciones button{font:inherit;padding:12px;border-radius:8px;border:1px solid var(--linea);background:#fff;color:var(--osc);cursor:pointer}
+.opciones button b{display:block;font-size:16px}
+.opciones button span{font-family:Consolas,'Courier New',monospace;font-size:15px}
+.opciones button:hover:not(:disabled){border-color:var(--teal);background:var(--claro)}
+.opciones button:disabled{cursor:default}
+.opciones button.correcta{background:#E3F1E8;border-color:var(--verde);color:var(--verde)}
+.opciones button.errada{background:#FBE9E6;border-color:var(--rojo);color:var(--rojo)}
+.respuesta{display:none;margin-top:14px;border-radius:8px;padding:12px 16px;background:var(--crema)}
+.respuesta.visible{display:block}
+.respuesta h3{font-size:15px;color:var(--osc);margin-bottom:4px}
+.respuesta .real{font-size:14px;color:var(--gris);margin-top:6px}
+.acciones{display:flex;gap:10px;margin-top:14px}
+.acciones button{font:inherit;font-size:15px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;background:var(--osc);color:#fff}
+.acciones button:disabled{opacity:.4;cursor:default}
+.acciones button.sec{background:var(--claro);color:var(--osc)}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
+th{background:var(--osc);color:#fff;text-align:left;padding:7px 10px}
+td{border-bottom:1px solid var(--linea);padding:7px 10px;vertical-align:top}
+.ok{color:var(--verde);font-weight:700} .no{color:var(--rojo);font-weight:700}
+@media (max-width:640px){.reglas,.opciones{grid-template-columns:1fr}.header{padding:14px 16px}.card{padding:18px 16px}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>¿Qué versión sigue?</h1>
+  <p>Gestión de Configuración y Mantenimiento de Software · Unidad 3 · Formato F-17</p>
+  <div class="encuadre">Doce cambios, la mayoría tomados del registro de cambios de Flask. Para cada uno, decida qué
+    número subiría bajo versionamiento semántico estricto. Al final se compara con lo que hizo Flask, que no sigue
+    SemVer estricto. No se califica.</div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>Las reglas</h2>
+    <div class="reglas">
+      <div class="regla" style="background:var(--coral)"><b>MAYOR</b>Rompe la compatibilidad: quien usa el sistema tiene que cambiar algo.</div>
+      <div class="regla" style="background:var(--teal)"><b>MENOR</b>Agrega funcionalidad compatible, o marca algo como obsoleto.</div>
+      <div class="regla" style="background:var(--teal2)"><b>PARCHE</b>Corrige sin cambiar la interfaz.</div>
+    </div>
+  </div>
+
+  <div class="card" id="tarjeta">
+    <div class="barra"><span class="progreso" id="progreso"></span><div class="puntos" aria-hidden="true"><i id="avance"></i></div></div>
+    <p class="actual">Versión actual: <code id="actual"></code></p>
+    <p class="cambio" id="cambio"></p>
+    <p class="fuente" id="fuente"></p>
+    <div class="opciones" id="opciones" role="group" aria-label="Qué número sube"></div>
+    <div class="respuesta" id="respuesta" aria-live="polite"><h3 id="resp-tit"></h3><p id="resp-txt"></p><p class="real" id="resp-real"></p></div>
+    <div class="acciones"><button id="siguiente" disabled>Siguiente cambio</button></div>
+  </div>
+
+  <div class="card" id="resumen" hidden>
+    <h2>Resumen</h2>
+    <p id="resumen-txt"></p>
+    <table><thead><tr><th>Cambio</th><th>Usted</th><th>SemVer estricto</th><th>Lo que hizo Flask</th></tr></thead><tbody id="filas"></tbody></table>
+    <div class="acciones"><button id="reiniciar" class="sec">Empezar de nuevo</button></div>
+  </div>
+</div>
+
+<script>
+// [versión actual, cambio, fuente, respuesta SemVer, razón, lo que hizo el proyecto]
+const CASOS = [
+ ["3.1.0", "Corrige el orden de selección de la llave de firma cuando está activa la rotación de llaves.", "Flask, aviso de seguridad GHSA-4grg-w6v8-c28g", "parche",
+  "Es una corrección de seguridad que no cambia la interfaz.", "Flask la publicó en la 3.1.1: un parche."],
+ ["3.0.3", "Agrega soporte para el atributo Partitioned de las cookies, con una nueva opción de configuración.", "Flask, issue 5472", "menor",
+  "Es funcionalidad nueva y opcional: quien no la usa no nota el cambio.", "Flask la publicó en la 3.1.0: una versión menor."],
+ ["2.2.4", "Retira código marcado como obsoleto en la versión anterior: atributos, opciones de configuración y decoradores.", "Flask, PR 4995", "mayor",
+  "Quien todavía usaba esas API deja de funcionar: rompe la compatibilidad.", "Flask lo publicó en la 2.3.0, una versión menor, después de una versión de aviso. Bajo SemVer estricto habría sido la 3.0.0."],
+ ["2.3.3", "Retira código obsoleto y reorganiza las clases principales sobre bases sin entrada y salida.", "Flask, PR 5223 y 5127", "mayor",
+  "Rompe la compatibilidad para quien heredaba de esas clases o usaba lo retirado.", "Flask la publicó en la 3.0.0: una versión mayor."],
+ ["2.3.3", "Marca como obsoleto el atributo __version__; se recomienda usar importlib.metadata.", "Flask, issue 5230", "menor",
+  "Marcar algo como obsoleto avisa sin romper: SemVer lo trata como versión menor.", "Flask lo incluyó en la 3.0.0, junto con cambios mayores."],
+ ["3.0.3", "Deja de soportar Python 3.8.", "Flask, PR 5623", "mayor",
+  "Bajo SemVer estricto, quien usa Python 3.8 ya no puede actualizar: es un cambio que rompe. Muchos proyectos lo tratan como menor porque el instalador de paquetes no ofrece la versión nueva a quien no puede usarla. Es una decisión que hay que declarar.", "Flask lo incluyó en la 3.1.0: una versión menor."],
+ ["3.1.1", "Corrige que stream_with_context falle dentro de vistas asíncronas.", "Flask, issue 5774", "parche",
+  "Algo que debía funcionar no funcionaba; la interfaz no cambia.", "Flask la publicó en la 3.1.2: un parche."],
+ ["3.1.1", "Relaja una indicación de tipos para aceptar bytes al enviar archivos.", "Flask, issue 5776", "parche",
+  "Corrige una anotación de tipos demasiado estricta. El comportamiento no cambia.", "Flask la publicó en la 3.1.2: un parche."],
+ ["3.0.3", "Permite configurar el tamaño máximo de una petición para cada petición, además de la configuración global.", "Flask, issue 5625", "menor",
+  "Funcionalidad nueva compatible.", "Flask la publicó en la 3.1.0: una versión menor."],
+ ["0.1.0", "En la plantilla del curso: la ruta /saludo/<nombre> pasa a llamarse /saludos/<nombre>.", "Plantilla del curso", "menor",
+  "Rompe a quien usaba la ruta. Pero la versión es 0.x: antes de 1.0.0 SemVer permite cualquier cambio, y la convención habitual es subir la menor. Al llegar a 1.0.0 esto ya sería mayor.", "Caso hipotético para la plantilla."],
+ ["1.4.2", "En la plantilla del curso: la respuesta de /version agrega el campo «fecha».", "Plantilla del curso", "menor",
+  "Agregar un campo a una respuesta es compatible si los clientes ignoran los campos que no conocen. Es funcionalidad nueva: menor.", "Caso hipotético para la plantilla."],
+ ["1.4.2", "En la plantilla del curso: la respuesta de /salud cambia de {\"estado\":\"ok\"} a {\"estado\":\"OK\"}.", "Plantilla del curso", "mayor",
+  "Parece una corrección menor, pero quien comparaba el valor deja de funcionar: rompe la compatibilidad. Es el error que la CI del curso detectó en la ejecución 41257272061.", "La CI lo bloqueó antes de que llegara a una versión."]
+];
+const NOMBRE = { mayor: "MAYOR", menor: "MENOR", parche: "PARCHE" };
+function siguiente(v, tipo) {
+  let [a, b, c] = v.split(".").map(Number);
+  if (tipo === "mayor") return `${a + 1}.0.0`;
+  if (tipo === "menor") return `${a}.${b + 1}.0`;
+  return `${a}.${b}.${c + 1}`;
+}
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let i = 0, elecciones = [];
+
+function pintar() {
+  const [v, cambio, fuente] = CASOS[i];
+  $("progreso").textContent = `Cambio ${i + 1} de ${CASOS.length}`;
+  $("avance").style.width = (i / CASOS.length * 100) + "%";
+  $("actual").textContent = v;
+  $("cambio").textContent = cambio;
+  $("fuente").textContent = "Fuente: " + fuente;
+  $("opciones").innerHTML = ["mayor", "menor", "parche"].map(t =>
+    `<button data-t="${t}"><b>${NOMBRE[t]}</b><span>${siguiente(v, t)}</span></button>`).join("");
+  $("respuesta").classList.remove("visible");
+  $("siguiente").disabled = true;
+  $("siguiente").textContent = i === CASOS.length - 1 ? "Ver el resumen" : "Siguiente cambio";
+  document.querySelectorAll("#opciones button").forEach(b => b.onclick = () => elegir(b.dataset.t));
+}
+
+function elegir(t) {
+  const [v, , , correcta, razon, real] = CASOS[i];
+  elecciones[i] = t;
+  document.querySelectorAll("#opciones button").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.t === correcta) b.classList.add("correcta");
+    else if (b.dataset.t === t) b.classList.add("errada");
+  });
+  $("resp-tit").textContent = (t === correcta ? "Coincide: " : "Bajo SemVer estricto: ") + NOMBRE[correcta] + ", " + v + " → " + siguiente(v, correcta);
+  $("resp-txt").textContent = razon;
+  $("resp-real").textContent = real;
+  $("respuesta").classList.add("visible");
+  $("siguiente").disabled = false;
+  $("siguiente").focus();
+}
+
+function resumen() {
+  $("tarjeta").hidden = true; $("resumen").hidden = false;
+  const bien = elecciones.filter((t, n) => t === CASOS[n][3]).length;
+  $("resumen-txt").textContent = `Coincidió en ${bien} de ${CASOS.length}. Los casos que más se discuten son los que rompen a pocos usuarios (retirar una versión de Python) o rompen sin parecerlo (cambiar mayúsculas en una respuesta).`;
+  $("filas").innerHTML = CASOS.map((c, n) => `<tr><td>${esc(c[1])}</td>
+    <td class="${elecciones[n] === c[3] ? "ok" : "no"}">${NOMBRE[elecciones[n]]}</td><td>${NOMBRE[c[3]]}</td><td>${esc(c[5])}</td></tr>`).join("");
+}
+
+$("siguiente").onclick = () => { if (i < CASOS.length - 1) { i++; pintar(); } else resumen(); };
+$("reiniciar").onclick = () => { i = 0; elecciones = []; $("resumen").hidden = true; $("tarjeta").hidden = false; pintar(); };
+pintar();
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>GCMS S3 · Recorrido resuelto</title>
+<link rel="stylesheet" href="documentos.css"/>
+</head>
+<body>
+
+<div class="portada">
+  <div class="kicker">Gestión de Configuración y Mantenimiento de Software · Unidad 3</div>
+  <h1>Recorrido resuelto</h1>
+  <div class="sub">Los formatos F-15 a F-20 con Flask y con la plantilla del curso · Maestría en Ingeniería de Software, Universidad de La Sabana</div>
+</div>
+
+<p>Este recorrido usa dos fuentes reales. <b>Flask</b>, el ejemplo del docente desde la Unidad 1, muestra cómo se
+ven una estrategia de ramas, una política de versiones y unas métricas de entrega en un proyecto con quince años de
+historia. <b>La plantilla del curso</b>, en la carpeta <code>plantilla/</code> de este repositorio, muestra el pipeline
+corriendo en GitHub, con una ejecución fallida y su corrección. Datos consultados el 1 de noviembre de 2026.</p>
+
+<div class="recuadro">
+  <span class="rot">Cómo usar este recorrido</span>
+  <p>Su entrega se parece más a la segunda parte que a la primera: un repositorio nuevo, con poca historia, en el que
+  todo lo que se configura se puede mostrar con un enlace.</p>
+</div>
+
+<h2>Primera parte · Flask</h2>
+
+<h3>F-16 · Estrategia de ramas</h3>
+<table>
+  <tbody>
+    <tr><td class="campo">Estrategia</td><td>Rama de mantenimiento: <code>main</code> para la versión siguiente y <code>stable</code> para corregir la vigente.</td></tr>
+    <tr><td class="campo">Evidencia</td><td><code>stable</code> está 87 commits detrás de <code>main</code> y no tiene commits propios pendientes: todo lo que entra a <code>stable</code> se integra después a <code>main</code>. En el remoto solo hay otras dos ramas, de un commit cada una: las ramas de trabajo viven poco.</td></tr>
+    <tr><td class="campo">Por qué le sirve</td><td>Es una biblioteca con usuarios en la versión vigente. Las correcciones de seguridad de la 3.1.1 y la 3.1.3 salieron sin esperar a la 3.2.0.</td></tr>
+  </tbody>
+</table>
+
+<h3>F-17 · Versionamiento y entregas</h3>
+<table>
+  <tbody>
+    <tr><td class="campo">Formato</td><td><code>X.Y.Z</code> sin prefijo. De 69 etiquetas, 47 cumplen versionamiento semántico. Las 22 restantes son las versiones antiguas de dos números (0.1 a 1.0), siete etiquetas que nombran ramas de mantenimiento (como <code>2.0.x</code>) y <code>2.0.0rc1</code> y <code>2.0.0rc2</code>, que en SemVer se escriben con guion: <code>2.0.0-rc1</code>.</td></tr>
+    <tr><td class="campo">Contrato</td><td>Flask no sigue SemVer estricto. La 2.3.0, una versión menor, retiró código marcado como obsoleto en la 2.2.0: bajo SemVer eso exige una versión mayor. El proyecto compensa con un período de obsolescencia de una versión.</td></tr>
+    <tr><td class="campo">Registro de cambios</td><td><code>CHANGES.rst</code>, una sección por versión con fecha y referencias a PR, issues y avisos de seguridad.</td></tr>
+  </tbody>
+</table>
+<p class="nota">Lección para su F-17: declaren qué significa cada número en su sistema. Una política distinta de SemVer
+estricto es válida si está escrita y se cumple.</p>
+
+<h3>F-20 · Métricas de entrega desde 2021</h3>
+<pre>python herramientas/entrega.py flask --desde 2021-01-01</pre>
+<table>
+  <thead><tr><th style="width:36%">Métrica</th><th style="width:30%">Valor</th><th>Lectura</th></tr></thead>
+  <tbody>
+    <tr><td>Versiones por año</td><td>2021: 5 · 2022: 8 · 2023: 8 · 2024: 4 · 2025: 2 · 2026: 1</td><td>La frecuencia baja desde 2024, como mostró la Unidad 1</td></tr>
+    <tr><td>Tipos de versión</td><td>2 mayores, 4 menores, 22 de corrección</td><td>79 % son de corrección. En una biblioteca eso no indica fallos: muchas correcciones son de tipos o de documentación</td></tr>
+    <tr><td>Tiempo de entrega de los cambios</td><td>Mediana 61 días · percentil 75: 172 días</td><td>Un cambio típico espera dos meses a la siguiente versión</td></tr>
+    <tr><td>Mensajes de commit en <code>main</code></td><td>868 · Conventional Commits 0 % · con referencia 3 %</td><td>La convención del proyecto es otra: frases cortas en imperativo, con el PR en la fusión</td></tr>
+  </tbody>
+</table>
+<p class="nota">Cada commit se cuenta en la primera versión que lo publicó, de cualquier rama. Sin esa regla, la 2.0.0
+aparecía con 3.066 commits porque las versiones de mantenimiento 1.1.3 y 1.1.4 salieron después de ella. El detalle
+por versión está en <code>ejemplo_flask/entregas.csv</code>.</p>
+
+<div class="salto"></div>
+<h2>Segunda parte · La plantilla del curso</h2>
+
+<h3>F-15 · Repositorio y convenciones</h3>
+<table>
+  <tbody>
+    <tr><td class="campo">Estructura</td><td><code>servicio/</code> (el sistema), <code>tests/</code>, <code>scripts/</code> (verificación de versión, notas de la entrega, prueba de humo), <code>.github/workflows/</code> (CI y entrega), <code>Dockerfile</code>, <code>CHANGELOG.md</code>.</td></tr>
+    <tr><td class="campo">Versión declarada</td><td>En dos lugares: <code>pyproject.toml</code> y <code>servicio/__init__.py</code>. El pipeline de entrega no publica si no coinciden con la etiqueta.</td></tr>
+    <tr><td class="campo">Dependencias</td><td>Fijadas con versión exacta en <code>requirements.txt</code> y <code>requirements-dev.txt</code>.</td></tr>
+    <tr><td class="campo">Calidad</td><td>ruff para errores comunes y formato. En la primera prueba local detectó tres líneas demasiado largas en uno de los scripts de la plantilla.</td></tr>
+  </tbody>
+</table>
+
+<h3>F-18 · Diseño del pipeline</h3>
+<table>
+  <thead><tr><th style="width:15%">Etapa</th><th style="width:17%">Disparador</th><th style="width:36%">Qué hace</th><th>Qué la hace fallar</th></tr></thead>
+  <tbody>
+    <tr><td>calidad</td><td>Cada PR y cada integración a <code>main</code></td><td><code>ruff check</code> y <code>ruff format --check</code></td><td>Errores de estilo o de formato</td></tr>
+    <tr><td>pruebas</td><td>Después de calidad</td><td><code>pytest</code> en Python 3.11, 3.12 y 3.13; los resultados se guardan como artefacto</td><td>Una prueba que falle en cualquier versión</td></tr>
+    <tr><td>imagen</td><td>Después de pruebas</td><td>Construye la imagen con el commit adentro, la levanta y comprueba <code>/salud</code> y <code>/version</code></td><td>Que no arranque, o que <code>/version</code> no devuelva el commit construido</td></tr>
+    <tr><td>verificar</td><td>Etiqueta <code>vX.Y.Z</code></td><td><code>scripts/verificar_version.py</code></td><td>Formato inválido, versión declarada distinta o sin sección en el registro de cambios</td></tr>
+    <tr><td>publicar-imagen</td><td>Después de verificar y pruebas</td><td>Construye una sola vez y publica en GitHub Container Registry, con la versión y el commit como etiquetas</td><td>Falla de construcción o de publicación</td></tr>
+    <tr><td>staging</td><td>Después de publicar</td><td>Levanta la imagen publicada, por su digest, y corre la prueba de humo</td><td>La imagen publicada no responde o no es la del commit</td></tr>
+    <tr><td>produccion</td><td>Aprobación del entorno</td><td>Publica la entrega con las notas del registro de cambios y el digest de la imagen</td><td>Rechazo en la aprobación</td></tr>
+  </tbody>
+</table>
+<p class="nota">Las acciones externas están fijadas por hash de commit, con los mismos hashes que usa Flask. Los
+secretos son solo el <code>GITHUB_TOKEN</code> que GitHub entrega a cada ejecución: no hay ninguno en el repositorio.</p>
+
+<div class="salto"></div>
+<h3>F-19 · Registro de evidencias</h3>
+<p>Las tres ejecuciones del flujo «CI de la plantilla» en el repositorio del curso, el 1 de noviembre de 2026:</p>
+<table>
+  <thead><tr><th style="width:4%">#</th><th style="width:24%">Qué demuestra</th><th style="width:18%">Ejecución y commit</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>CI en verde sobre el PR</td><td>41256889959 · <code>e07ec9e8</code></td><td>Los cinco trabajos en verde en unos 40 segundos: calidad, pruebas en 3.11, 3.12 y 3.13, e imagen con prueba de humo</td></tr>
+    <tr><td>2</td><td>Una falla que bloquea un cambio</td><td>41257272061 · <code>20c7629f</code></td><td>El cambio pone <code>/salud</code> en mayúsculas. La prueba falla en las tres versiones: <code>assert {'estado': 'OK'} == {'estado': 'ok'}</code>. El trabajo <code>imagen</code> queda omitido: nada se construye sobre un cambio que no pasa las pruebas</td></tr>
+    <tr><td>3</td><td>La corrección</td><td>41257593217 · <code>05b0e583</code></td><td>El cambio se revierte y la CI vuelve a verde</td></tr>
+  </tbody>
+</table>
+<p class="nota">Las ejecuciones se ven en la pestaña Actions del repositorio del curso. La falla fue provocada para el
+ejemplo; en su sistema, las fallas reales son mejores evidencias que las provocadas.</p>
+<h3>Lo que no se ejecutó</h3>
+<p>El flujo de entrega no se corrió en el repositorio del curso: hacerlo publicaría una imagen y una entrega en él.
+Se validó con <code>actionlint</code>, y cada pieza se probó por separado:</p>
+<ul>
+  <li><code>verificar_version.py</code> aceptó <code>v0.1.0</code> y rechazó <code>v0.2</code> con cuatro errores;</li>
+  <li><code>notas_version.py</code> extrajo la sección 0.1.0 del registro de cambios;</li>
+  <li>la imagen se construyó, corrió con un usuario sin privilegios y pasó la prueba de humo, que también falló
+  correctamente con un commit equivocado.</li>
+</ul>
+<p>La primera vez que lo corran en su repositorio, guarden esa ejecución en el F-19.</p>
+
+<h2>Referencias</h2>
+<p>Forsgren, N., Humble, J., &amp; Kim, G. (2018). <i>Accelerate: The science of lean software and DevOps</i>. IT Revolution Press.</p>
+<p>Humble, J., &amp; Farley, D. (2010). <i>Continuous delivery: Reliable software releases through build, test, and deployment automation</i>. Addison-Wesley.</p>
+<p>Pallets. (2026). <i>Flask</i> [Repositorio de código fuente]. GitHub. https://github.com/pallets/flask</p>
+<p>Preston-Werner, T. (s. f.). <i>Semantic Versioning 2.0.0</i>. https://semver.org</p>
+
+<div class="pie-doc">GCMS · Unidad 3 · Recorrido resuelto · César Augusto Vega Fernández · Universidad de La Sabana ·
+Licencia CC BY-NC-SA 4.0. Flask es un proyecto de Pallets con licencia BSD-3-Clause; este documento analiza su repositorio público.</div>
+</body>
+</html>

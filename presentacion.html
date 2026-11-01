@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"/>
+<meta name="theme-color" content="#0E181D"/>
+<meta name="color-scheme" content="light"/>
+<title>GCMS S3 · Control de Versiones y DevOps — Presentación</title>
+<style>
+:root{
+  --osc:#1C2B33; --txt:#31424B; --gris:#6B7A82; --claro:#EFF2F3; --linea:#CFDAE0; --crema:#F6EAE1;
+  --coral:#C2622C; --teal:#46707E; --teal2:#34535D; --cafe:#9E5C3B;
+  --verde:#3F7A5B; --ambar:#C9932E; --rojo:#B03A2E; --osc2:#263842;
+  --serif:'Cambria','Georgia','Times New Roman',serif;
+  --sans:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --sombra:0 18px 48px rgba(28,43,51,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0E181D;font-family:var(--sans);color:var(--txt);overflow:hidden}
+body.notas-abiertas{overflow:auto}
+
+/* ── escenario: una diapositiva de 1280×720 escalada al viewport ── */
+#escenario{position:fixed;inset:0;overflow:hidden}
+#lienzo{width:1280px;height:720px;position:absolute;left:50%;top:calc(50% - 17px);
+  transform-origin:center;background:#fff;box-shadow:var(--sombra);border-radius:6px;overflow:hidden}
+body.sin-barra #lienzo{top:50%}
+.slide{position:absolute;inset:0;padding:34px 46px 30px;display:none;flex-direction:column;background:#fff}
+.slide.viva{display:flex}
+.slide.entra{animation:entrar .42s cubic-bezier(.22,.61,.36,1)}
+.slide.entra-atras{animation:entrar-atras .42s cubic-bezier(.22,.61,.36,1)}
+@keyframes entrar{from{opacity:0;transform:translateX(26px) scale(.995)}to{opacity:1;transform:none}}
+@keyframes entrar-atras{from{opacity:0;transform:translateX(-26px) scale(.995)}to{opacity:1;transform:none}}
+
+/* ── encabezado ── */
+.kicker{font-size:12.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--coral)}
+.slide h1{font-family:var(--serif);font-size:38px;line-height:1.14;color:var(--osc);margin:6px 0 0;font-weight:700}
+.regla{height:4px;width:74px;border-radius:2px;margin:14px 0 0;background:var(--coral)}
+/* el color de la regla y del rótulo es el del bloque: 1 conceptos, 2 ejemplos, 3 taller */
+.slide[data-bloque="2"] .regla{background:var(--teal)}
+.slide[data-bloque="3"] .regla{background:var(--cafe)}
+.slide[data-bloque="2"] .kicker{color:var(--teal)}
+.slide[data-bloque="3"] .kicker{color:var(--cafe)}
+.cuerpo{flex:1;display:flex;flex-direction:column;gap:13px;justify-content:center;padding:14px 0 6px;min-height:0}
+.pie{font-size:11.5px;color:var(--gris);border-top:1px solid var(--linea);padding-top:8px;word-break:break-word}
+
+/* ── animación de entrada de cada elemento ── */
+[data-anim]{opacity:0;transform:translateY(14px)}
+.slide.viva [data-anim]{animation:surgir .5s cubic-bezier(.22,.61,.36,1) forwards;animation-delay:calc(var(--i,0) * 90ms + 120ms)}
+@keyframes surgir{to{opacity:1;transform:none}}
+
+/* ── el aparte: la caja de la derecha que acompaña a un bloque ── */
+.con-aparte{display:grid;grid-template-columns:1fr minmax(180px,var(--wap,300px));gap:16px;align-items:start}
+.aparte{background:var(--claro);border-radius:10px;padding:14px 16px}
+.aparte.crema{background:var(--crema)}
+.aparte.oscuro{background:var(--osc2);color:#CFDAE0}
+.aparte h3{font-family:var(--serif);font-size:16px;color:var(--osc);margin-bottom:8px}
+.aparte.oscuro h3{color:#fff}
+.aparte ul{list-style:none;font-size:14px;line-height:1.45;display:flex;flex-direction:column;gap:7px}
+.aparte.oscuro ul{color:#8FA5AF}
+.apartes{display:flex;flex-direction:column;gap:12px}
+
+/* ── agenda (mapa de la sesión) ── */
+.agenda{display:flex;flex-direction:column;gap:7px}
+.agenda .fila{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center}
+.agenda .n{width:34px;height:34px;border-radius:5px;display:grid;place-items:center;color:#fff;
+  font-family:var(--serif);font-weight:700;font-size:16px}
+.agenda .t{font-size:15.5px;color:var(--txt)}
+.agenda .m{font-size:13px;color:var(--gris);font-weight:700;white-space:nowrap}
+.c-coral{background:var(--coral)} .c-teal{background:var(--teal)} .c-teal2{background:var(--teal2)}
+.c-cafe{background:var(--cafe)} .c-verde{background:var(--verde)} .c-ambar{background:var(--ambar)}
+.c-rojo{background:var(--rojo)} .c-gris{background:var(--gris)}
+
+/* ── tarjetas ── */
+.tarjetas{display:grid;gap:16px;grid-auto-flow:column;grid-auto-columns:1fr}
+.tarjeta{border-radius:12px;overflow:hidden;background:var(--claro);display:flex;flex-direction:column;
+  box-shadow:0 2px 10px rgba(28,43,51,.06);transition:transform .25s,box-shadow .25s}
+.tarjeta:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(28,43,51,.13)}
+.tarjeta.crema{background:var(--crema)}
+.tarjeta > h2{font-family:var(--serif);font-size:19px;color:#fff;padding:11px 16px;font-weight:700;line-height:1.2}
+.tarjeta.filete > i{display:block;height:6px}
+.tarjeta.filete > h2,.tarjeta.plana > h2{color:var(--osc);background:transparent;padding:14px 16px 0}
+.tarjeta .contenido{padding:13px 16px;font-size:15px;line-height:1.45;display:flex;flex-direction:column;gap:7px}
+.tarjeta .rotulo{font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--gris)}
+.tenue{color:var(--gris);font-size:14px}
+.t-coral{color:var(--coral)} .t-teal{color:var(--teal)} .t-teal2{color:var(--teal2)} .t-cafe{color:var(--cafe)}
+
+/* ── pasos ── */
+.pasos{display:flex;flex-direction:column;gap:8px}
+.paso{display:grid;grid-template-columns:44px 1fr auto;align-items:center;border-radius:10px;overflow:hidden;
+  background:var(--claro);transition:transform .2s}
+.paso:hover{transform:translateX(3px)}
+.paso .n{background:var(--coral);color:#fff;font-family:var(--serif);font-size:20px;font-weight:700;
+  align-self:stretch;display:grid;place-items:center}
+.paso.cafe .n{background:var(--cafe)}
+.paso .txt{padding:8px 14px}
+.paso .txt b{display:block;color:var(--osc);font-size:15.5px}
+.paso .txt span{font-size:14.5px;line-height:1.4}
+.paso .m{padding-right:14px;font-size:13px;color:var(--gris);font-weight:700;white-space:nowrap}
+.pasos.enumeradas .paso{grid-template-columns:44px 1fr;background:transparent;border-radius:0}
+.pasos.enumeradas .paso .n{border-radius:6px;font-size:18px;align-self:center;height:36px}
+.pasos.enumeradas .paso .txt{padding:2px 0 2px 12px}
+
+/* ── filas (los marcos, el ciclo ADM) ── */
+.filas{display:flex;flex-direction:column;gap:9px}
+.fila-m{display:grid;grid-template-columns:var(--we,190px) 1fr;gap:14px;background:var(--claro);
+  border-left:7px solid var(--teal);border-radius:0 10px 10px 0;padding:11px 16px;align-items:center}
+.fila-m .et{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.2}
+.fila-m .sub{font-size:12px;color:var(--gris);margin-top:2px}
+.fila-m .tx{font-size:15px;line-height:1.4}
+.fila-p{display:grid;grid-template-columns:var(--we,190px) 1fr;gap:14px;background:var(--claro);
+  border-radius:8px;padding:9px 16px;align-items:center}
+.fila-p.viva{color:#fff}
+.fila-p.apagada{color:var(--gris)}
+.fila-p .et{font-weight:700;font-size:15px}
+.fila-p .tx{font-size:14.5px}
+
+/* ── tabla ── */
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;border-radius:10px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(28,43,51,.06)}
+thead th{background:var(--osc);color:#fff;text-align:left;padding:9px 14px;font-size:13px;font-weight:700}
+tbody td{padding:9px 14px;border-bottom:1px solid var(--linea);vertical-align:top;line-height:1.38}
+tbody tr:nth-child(odd){background:var(--claro)}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{font-weight:700;color:var(--osc)}
+table.comparativa td:nth-child(2){color:#8A3A2A}
+table.comparativa td:nth-child(3){color:#1F5A3A}
+
+/* ── columnas (la ruta de la sesión) ── */
+.columnas{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:22px}
+.columna .barra{height:5px;border-radius:3px;margin-bottom:12px}
+.columna .k{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.columna h2{font-family:var(--serif);font-size:27px;color:var(--osc);margin:4px 0 8px}
+.columna p{font-size:15.5px;line-height:1.4}
+
+/* ── pares (dos columnas enfrentadas) ── */
+.pares{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.pares .cab{border-radius:8px;padding:9px 16px;font-family:var(--serif);font-size:18px;font-weight:700;color:#fff}
+.pares .celda{border-radius:8px;padding:12px 16px;font-size:15px;line-height:1.42;background:var(--claro)}
+.pares .celda.crema{background:var(--crema)}
+.pares .celda .rot{font-weight:700;font-size:13.5px;margin-bottom:6px;display:block}
+.pares .celda p+p{margin-top:7px}
+
+/* ── rejilla ── */
+.rejilla-b{display:grid;gap:12px}
+.rejilla-b .celda{background:var(--claro);border-radius:8px;padding:10px 14px}
+.rejilla-b .celda.filete{border-left:6px solid var(--cafe);border-radius:0 8px 8px 0}
+.rejilla-b .celda b{display:block;font-size:13.5px;letter-spacing:.03em}
+.rejilla-b .celda span{font-size:13.5px;color:var(--txt)}
+
+/* ── banda, aviso, párrafo ── */
+.banda{background:var(--osc);color:#fff;border-radius:10px;padding:13px 20px;font-family:var(--serif);
+  font-size:18px;line-height:1.35}
+.aviso{background:var(--crema);border-radius:10px;padding:12px 18px;font-size:14.5px;line-height:1.4}
+.aviso.claro{background:var(--claro)}
+.aviso .rot{display:block;font-family:var(--serif);font-size:16px;font-weight:700;color:var(--osc);margin-bottom:5px}
+.parrafo{background:var(--claro);border-radius:10px;padding:14px 18px;font-size:15px;line-height:1.45}
+.parrafo p+p{margin-top:7px}
+
+/* ── cita y cajas ── */
+.cita-cajas{display:grid;grid-template-columns:7fr 5fr;gap:18px;align-items:stretch}
+.cita{background:var(--crema);border-radius:12px;padding:20px 24px;font-family:var(--serif);font-size:17.5px;
+  line-height:1.38}
+.cita .autor{font-family:var(--sans);font-size:12.5px;color:var(--gris);font-weight:700;margin-top:14px}
+.cajas{display:flex;flex-direction:column;gap:12px}
+.caja{background:var(--claro);border-left:6px solid var(--teal2);border-radius:0 10px 10px 0;padding:14px 18px}
+.caja h2{font-family:var(--serif);font-size:18px;margin-bottom:7px}
+.caja ul{list-style:none;font-size:14.5px;line-height:1.45;display:flex;flex-direction:column;gap:5px}
+.caja li::before{content:"· ";color:var(--gris)}
+.b-coral{border-left-color:var(--coral)} .b-teal{border-left-color:var(--teal)}
+.b-teal2{border-left-color:var(--teal2)} .b-cafe{border-left-color:var(--cafe)}
+.caja.b-teal2 h2{color:var(--teal2)} .caja.b-coral h2{color:var(--coral)}
+
+/* ── cuadrante del modelo operativo ── */
+.cuadrante{display:grid;grid-template-columns:5fr 6fr;gap:20px;align-items:start}
+.cuadrante .plano .ejes{background:var(--osc);color:#fff;border-radius:6px 6px 0 0;padding:7px;text-align:center;
+  font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.cuadrante .rejilla4{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linea);
+  border:1px solid var(--linea);border-top:0}
+.cuadrante .q{background:#FBFCFC;padding:12px 14px;min-height:78px}
+.cuadrante .q b{display:block;font-family:var(--serif);font-size:19px;color:var(--osc)}
+.cuadrante .q span{font-size:12.5px;color:var(--gris)}
+
+/* ── mapa de capacidades con soporte ── */
+.heat{display:flex;flex-direction:column;gap:8px}
+.heat .cap{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;background:var(--claro);
+  border-left:7px solid var(--gris);border-radius:0 8px 8px 0;padding:9px 14px}
+.heat .cap .nom{font-size:15px;color:var(--osc)}
+.heat .cap.critica .nom{font-weight:700}
+.heat .chip{color:#fff;border-radius:5px;padding:3px 16px;font-size:12.5px;font-weight:700}
+.bl-verde{border-left-color:var(--verde)} .bl-ambar{border-left-color:var(--ambar)} .bl-rojo{border-left-color:var(--rojo)}
+
+/* ── escala de madurez ── */
+.escala .niveles{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px}
+.escala .nivel{border-radius:8px;padding:9px;text-align:center;color:#fff}
+.escala .nivel .n{font-size:11px;font-weight:800;letter-spacing:.08em}
+.escala .nivel .nm{font-family:var(--serif);font-size:15px;font-weight:700;margin-top:2px}
+.escala .dims{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.escala .dim{background:var(--claro);border-radius:8px;padding:11px 14px;font-size:15px;font-weight:700;color:var(--osc)}
+
+/* ── cadena evidencia → principio ── */
+.cadena{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;position:relative}
+.cadena .esl{border-radius:10px;padding:13px 14px;color:#fff;position:relative}
+.cadena .esl b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:4px}
+.cadena .esl span{font-size:12.5px;line-height:1.3;display:block}
+.cadena .esl:not(:last-child)::after{content:"›";position:absolute;right:-15px;top:50%;transform:translateY(-50%);
+  color:var(--gris);font-size:22px;font-weight:700}
+
+/* ── compromisos con fecha ── */
+.crono-l{display:flex;flex-direction:column;gap:9px}
+.crono-l .fila{display:grid;grid-template-columns:170px 1fr;gap:8px}
+.crono-l .plazo{border-radius:8px 0 0 8px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14.5px;padding:10px}
+.crono-l .qué{background:var(--claro);border-radius:0 8px 8px 0;padding:11px 16px;font-size:15px;display:flex;align-items:center}
+
+/* ── lista de errores ── */
+.lista{display:flex;flex-direction:column;gap:9px}
+.lista li{list-style:none;display:grid;grid-template-columns:16px 1fr;gap:14px;align-items:start;font-size:15px}
+.lista li::before{content:"";width:12px;height:12px;background:var(--coral);margin-top:5px;display:block}
+
+/* ── portada, divisores y cierre ── */
+.slide.oscura{background:var(--osc);color:#fff}
+.slide.oscura h1{color:#fff}
+.slide.oscura .pie{border-top-color:rgba(255,255,255,.14);color:#8FA5AF}
+.slide.portada{justify-content:center;padding:60px 70px}
+.slide.portada h1{font-size:58px;margin:10px 0 18px}
+.slide.portada .sub{font-family:var(--serif);font-size:26px;color:#CFDAE0}
+.slide.portada .lema{font-size:17px;color:#8FA5AF;margin-top:16px;max-width:60ch}
+.slide.portada .docente{margin-top:auto;font-size:15px;font-weight:700}
+.barras{position:absolute;right:70px;top:190px;display:flex;flex-direction:column;gap:14px}
+.barras i{display:block;width:250px;height:22px;border-radius:3px;background:var(--teal);
+  animation:crecer .7s cubic-bezier(.22,.61,.36,1) backwards}
+.barras i.on{background:var(--coral)}
+.barras i:nth-child(1){animation-delay:.15s} .barras i:nth-child(2){animation-delay:.28s}
+.barras i:nth-child(3){animation-delay:.41s} .barras i:nth-child(4){animation-delay:.54s}
+@keyframes crecer{from{transform:scaleX(0);opacity:0;transform-origin:left}to{transform:none;opacity:1}}
+.refs{font-size:14.5px;line-height:1.5;columns:2;column-gap:34px}
+.refs p{break-inside:avoid;margin-bottom:9px;padding-left:18px;text-indent:-18px}
+
+/* ── barra de estado ── */
+#estado{position:fixed;left:0;right:0;bottom:0;height:34px;display:flex;align-items:center;gap:16px;
+  padding:0 14px;background:rgba(14,24,29,.92);color:#C9D6EA;font-size:12.5px;backdrop-filter:blur(4px);
+  transition:transform .25s;z-index:5}
+#estado.oculta{transform:translateY(100%)}
+#estado button{background:transparent;border:1px solid rgba(201,214,234,.35);color:inherit;border-radius:6px;
+  padding:3px 9px;font-size:12px;cursor:pointer;font-family:inherit}
+#estado button:hover{background:rgba(201,214,234,.16)}
+#progreso{position:fixed;top:0;left:0;height:3px;background:var(--coral);z-index:6;transition:width .3s}
+.crece{margin-left:auto}
+
+/* ── índice ── */
+#indice{position:fixed;inset:0;background:rgba(14,24,29,.97);z-index:10;display:none;overflow:auto;padding:34px}
+#indice.abierto{display:block}
+#indice h2{color:#fff;font-family:var(--serif);font-size:24px;margin-bottom:18px}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:12px}
+.mini{background:#fff;border-radius:8px;padding:12px 14px;cursor:pointer;border:2px solid transparent;text-align:left}
+.mini:hover,.mini:focus-visible{border-color:var(--coral)}
+.mini .num{font-size:11px;font-weight:800;color:var(--gris)}
+.mini .t{font-family:var(--serif);font-size:15px;color:var(--osc);line-height:1.25;margin-top:3px}
+.mini[data-bloque="1"]{border-left:6px solid var(--coral)}
+.mini[data-bloque="2"]{border-left:6px solid var(--teal)}
+.mini[data-bloque="3"]{border-left:6px solid var(--cafe)}
+
+/* ── notas del docente ── */
+#notas{position:fixed;right:0;top:0;bottom:34px;width:390px;background:#13212A;color:#DCE6EA;padding:22px;
+  overflow:auto;transform:translateX(100%);transition:transform .3s;z-index:7;font-size:14.5px;line-height:1.5}
+#notas.abiertas{transform:none}
+#notas h3{font-family:var(--serif);font-size:17px;color:#fff;margin-bottom:10px}
+#notas p{margin-bottom:10px;white-space:pre-wrap}
+#notas .sig{margin-top:16px;padding-top:12px;border-top:1px solid rgba(220,230,234,.18);color:#93AAC9;font-size:13px}
+#notas .codigos{margin-top:16px;padding-top:12px;border-top:1px solid rgba(220,230,234,.18)}
+#notas .codigos h4{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#93AAC9;margin-bottom:8px}
+#notas .codigos div{margin-bottom:7px;font-size:13.5px;line-height:1.4}
+#notas .codigos b{color:#F0B48A;font-family:var(--serif)}
+
+/* ── glosario completo ── */
+#glosario{position:fixed;inset:0;background:rgba(14,24,29,.97);z-index:10;display:none;overflow:auto;padding:34px}
+#glosario.abierto{display:block}
+#glosario h2{color:#fff;font-family:var(--serif);font-size:24px;margin-bottom:6px}
+#glosario .aclara{color:#93AAC9;font-size:14px;max-width:80ch;margin-bottom:18px}
+.gfamilias{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.gfam{background:#fff;border-radius:10px;padding:14px 16px}
+.gfam h3{font-family:var(--serif);font-size:17px;color:var(--osc);margin-bottom:4px}
+.gfam .de{font-size:12.5px;color:var(--gris);margin-bottom:10px}
+.gfam dl{font-size:14px;line-height:1.4}
+.gfam dt{font-weight:700;color:var(--coral);font-family:var(--serif);margin-top:8px}
+.gfam dd{color:var(--txt)}
+
+/* ── cronómetro de las salas ── */
+#crono{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);z-index:9;display:none;
+  background:rgba(14,24,29,.96);color:#fff;border-radius:18px;padding:30px 44px;text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);animation:aparecer .25s forwards}
+#crono.visible{display:block}
+@keyframes aparecer{to{transform:translate(-50%,-50%) scale(1)}}
+#crono .tiempo{font-family:var(--serif);font-size:96px;font-variant-numeric:tabular-nums;line-height:1}
+#crono .tiempo.poco{color:#F0A28A}
+#crono .rot{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8FA5AF;margin-bottom:8px}
+#crono .acc{margin-top:16px;display:flex;gap:10px;justify-content:center}
+#crono button{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;
+  padding:6px 14px;cursor:pointer;font-family:inherit}
+
+#ayuda{position:fixed;inset:0;background:rgba(14,24,29,.96);z-index:11;display:none;place-items:center;color:#fff}
+#ayuda.abierta{display:grid}
+#ayuda table{background:transparent;box-shadow:none;color:#fff;max-width:560px;font-size:15px;border-collapse:collapse}
+#ayuda td{border-bottom:1px solid rgba(255,255,255,.12);color:#DCE6EA;padding:7px 10px}
+#ayuda td:first-child{color:#fff;font-family:var(--serif);width:150px}
+#ayuda h2{font-family:var(--serif);font-size:26px;margin-bottom:16px;text-align:center}
+
+/* ── guion con acotaciones (panel N y modo presentador) ── */
+.seg-nota{margin-bottom:6px}
+.acot{font-style:italic;color:#8FA5AF}
+
+/* ── modo presentador: esta ventana lleva el guion, la vista previa y los controles;
+      la otra, la que se comparte, solo las diapositivas ── */
+#pview,#pinfo{display:none}
+body.presenter #estado,body.presenter #notas,body.presenter #progreso,body.presenter #crono{display:none !important}
+body.presenter{background:#0B1318}
+body.presenter #lienzo{border:1px solid #2E4550;border-radius:8px}
+body.presenter #pview{display:flex;flex-direction:column;position:fixed;top:16px;right:16px;bottom:16px;width:calc(44vw - 48px);
+  background:#13212A;border:1px solid #2E4550;border-radius:10px;color:#DCE6EA;z-index:8}
+#pview header{padding:14px 20px;border-bottom:1px solid #2E4550;font-size:13px;font-weight:800;letter-spacing:.1em;color:#F0B48A;
+  display:flex;justify-content:space-between;gap:10px}
+#pview header span{color:#93AAC9;font-weight:600;letter-spacing:0}
+#pnotas{flex:1;overflow:auto;padding:18px 22px;font:21px/1.5 var(--sans)}
+#pnotas p{margin:0 0 14px}
+#pcods{border-top:1px solid #2E4550;padding:12px 22px;font-size:14px;color:#C5D0E0;max-height:26%;overflow:auto}
+#pcods b{color:#F0B48A;font-family:var(--serif)}
+#pcods div{margin-bottom:6px}
+body.presenter #pinfo{display:grid;position:fixed;left:16px;top:calc(58vh + 16px);width:56vw;gap:12px;color:#C5D0E0;font-size:16px;z-index:8}
+#pinfo .fila{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#pinfo button{font:700 17px var(--sans);background:#1E2F38;color:#fff;border:1px solid #2E4550;border-radius:8px;padding:11px 20px;cursor:pointer}
+#pinfo button.grande{background:var(--coral);border-color:var(--coral)}
+#pinfo button.chico{font-size:13px;padding:6px 12px}
+#pinfo .reloj{font:700 34px var(--serif);color:#fff;font-variant-numeric:tabular-nums}
+#pinfo .pos{font:700 19px var(--sans);color:#fff}
+#pinfo .ritmo{font-size:14px;font-weight:700;padding:3px 10px;border-radius:12px;background:#1E2F38}
+#pinfo .ritmo.bien{color:#9FD5A8} #pinfo .ritmo.tarde{color:#F0A28A} #pinfo .ritmo.pronto{color:#F0D28A}
+#pinfo .sigue,#pinfo .sinc{color:#8FA5AF;font-size:14px}
+#phelp{position:fixed;right:16px;bottom:48px;width:min(480px,calc(100vw - 32px));background:#fff;color:var(--txt);border-radius:10px;
+  padding:16px 18px;z-index:12;box-shadow:0 8px 28px rgba(0,0,0,.35);font-size:15px;line-height:1.45}
+#phelp ol{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}
+#phelp button{margin-top:12px;font:600 13px var(--sans);background:var(--osc);color:#fff;border:0;border-radius:6px;padding:6px 12px;cursor:pointer}
+@media (max-width: 760px){ body.presenter #pview,body.presenter #pinfo{position:static;width:auto} }
+
+/* ══════════════ plataforma: que en el teléfono no se note que es una web ══════════════ */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+button, [role="button"], .mini { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+#escenario { touch-action: pan-y; }              /* el cambio de diapositiva se lleva el eje horizontal */
+#estado button, .mini { transition: transform 120ms cubic-bezier(.22,.61,.36,1), background 120ms; }
+#estado button:active, .mini:active { transform: scale(.97); }
+/* el dedo no tiene hover: sin esto, el estado se queda pegado tras tocar */
+@media (hover: none), (pointer: coarse) {
+  .tarjeta:hover { transform: none; box-shadow: 0 2px 10px rgba(28,43,51,.06); }
+  .paso:hover { transform: none; }
+  .mini:hover { border-color: transparent; }
+  #estado button:hover { background: transparent; }
+}
+
+/* ══════════════ móvil: una diapositiva por pantalla, en vertical ══════════════ */
+#b-lectura { display: none; }
+@media (max-width: 760px) {
+  html, body { height: auto; overflow: auto; background: #0E181D; }
+  #escenario { position: static; overflow: visible; }
+  #lienzo { position: static; width: 100%; height: auto; min-height: 100dvh; transform: none !important;
+            border-radius: 0; box-shadow: none; background: transparent; }
+  .slide { position: relative; min-height: calc(100dvh - 62px); background: #fff;
+           padding: calc(22px + env(safe-area-inset-top, 0px)) 18px 26px; }
+  .slide.oscura { background: var(--osc); }
+  .cuerpo { justify-content: flex-start; gap: 12px; }
+  .slide.viva { animation: entrar-movil .28s cubic-bezier(.22,.61,.36,1); }
+  @keyframes entrar-movil { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* el texto, a su tamaño real */
+  .slide h1 { font-size: 26px; }
+  .slide.portada h1 { font-size: 34px; }
+  .slide.portada .sub { font-size: 19px; }
+  .barras { display: none; }
+  .kicker { font-size: 11.5px; }
+  .tarjeta > h2, .caja h2 { font-size: 17px; }
+  .tarjeta .contenido, .paso .txt span, .fila-m .tx { font-size: 15px; }
+  .banda { font-size: 16px; padding: 12px 16px; }
+  .cita { font-size: 16.5px; padding: 18px; }
+  .pie { font-size: 12px; }
+
+  /* de varias columnas a una */
+  .tarjetas, .columnas { grid-auto-flow: row; grid-auto-columns: auto; }
+  .cita-cajas, .con-aparte, .cuadrante, .pares { grid-template-columns: 1fr; }
+  .refs { columns: 1; }
+  .escala .niveles, .escala .dims, .cadena, .rejilla-b { grid-template-columns: 1fr 1fr; }
+  .cuerpo > div { overflow-x: auto; overscroll-behavior-x: contain; }
+  table { font-size: 14px; min-width: 520px; }
+  .cadena .esl::after { display: none; }
+  .crono-l .fila { grid-template-columns: 110px 1fr; }
+  .fila-m, .fila-p { grid-template-columns: 1fr; gap: 4px; }
+  .gfamilias { grid-template-columns: 1fr; }
+
+  /* la barra: a la medida del pulgar y por encima del indicador de inicio */
+  #estado { position: fixed; height: auto; flex-wrap: wrap; gap: 8px 12px;
+            padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  #estado button { padding: 8px 13px; min-height: 40px; }
+  #titulo-actual { display: none; }
+  #cuenta { font-weight: 700; }
+  #b-lectura { display: inline-block; }
+  #notas, #indice, #glosario { width: 100%; top: 0; bottom: 0;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  #crono { padding: 24px 28px; }
+  #crono .tiempo { font-size: 64px; }
+
+  /* ── modo lectura: las 21, una debajo de otra ── */
+  body.lectura .slide { display: flex !important; min-height: 0;
+                        border-radius: 12px; margin: 0 10px 14px; }
+  body.lectura .slide.viva { animation: none; }
+  body.lectura [data-anim] { opacity: 1 !important; transform: none !important; animation: none !important; }
+  body.lectura #lienzo { padding: 8px 0 96px; }
+  body.lectura #b-ant, body.lectura #b-sig, body.lectura #cuenta, body.lectura #progreso { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  [data-anim]{opacity:1;transform:none}
+}
+@media print{
+  body{background:#fff;overflow:visible}
+  #estado,#indice,#notas,#crono,#progreso,#ayuda,#glosario{display:none !important}
+  #escenario{position:static;display:block}
+  #lienzo{transform:none !important;box-shadow:none;border-radius:0}
+  .slide{display:flex !important;position:relative;page-break-after:always;width:1280px;height:720px}
+  [data-anim]{opacity:1 !important;transform:none !important;animation:none !important}
+  @page{size:1280px 720px;margin:0}
+}
+</style>
+</head>
+<body>
+
+<div id="progreso"></div>
+<div id="escenario"><div id="lienzo" aria-live="polite"></div></div>
+
+<div id="estado">
+  <button id="b-ant" aria-label="Diapositiva anterior">←</button>
+  <span id="cuenta" aria-live="off">1 / 21</span>
+  <button id="b-sig" aria-label="Diapositiva siguiente">→</button>
+  <span id="titulo-actual"></span>
+  <span class="crece"></span>
+  <button id="b-crono">Cronómetro (T)</button>
+  <button id="b-presentador">Modo presentador (P)</button>
+  <button id="b-notas">Notas (N)</button>
+  <button id="b-lectura" aria-pressed="false">Lectura</button>
+  <button id="b-indice">Índice (I)</button>
+  <button id="b-glosario">Códigos (G)</button>
+  <button id="b-ayuda" aria-label="Atajos de teclado">?</button>
+</div>
+
+<aside id="notas" aria-label="Notas del docente">
+  <h3 id="notas-tit"></h3>
+  <p id="notas-txt"></p>
+  <div class="sig" id="notas-sig"></div>
+  <div class="codigos" id="notas-cod"></div>
+</aside>
+
+
+
+<div id="glosario" role="dialog" aria-label="Glosario de códigos">
+  <h2>De dónde sale cada código</h2>
+  <p class="aclara">Los formatos F-nn son del curso: F-15 a F-21 son de la Unidad 3; la numeración continúa la de las unidades anteriores. Los conceptos son de sus autores, no del curso. Los datos de los ejemplos son del repositorio público de Flask.</p>
+  <div class="gfamilias" id="gfamilias"></div>
+</div>
+
+<div id="indice" role="dialog" aria-label="Índice de diapositivas">
+  <h2>Índice de la sesión</h2>
+  <div class="rejilla" id="rejilla"></div>
+</div>
+
+<div id="crono" role="timer" aria-live="off">
+  <div class="rot">Taller en salas · ajústelo al tiempo que le quede</div>
+  <div class="tiempo" id="crono-t">30:00</div>
+  <div class="acc">
+    <button id="crono-menos" aria-label="Un minuto menos">−1</button>
+    <button id="crono-play">Iniciar</button>
+    <button id="crono-mas" aria-label="Un minuto más">+1</button>
+    <button id="crono-cerrar">Cerrar (T)</button>
+  </div>
+</div>
+
+<div id="ayuda" role="dialog" aria-label="Atajos de teclado">
+  <div>
+    <h2>Atajos</h2>
+    <table><tbody>
+      <tr><td>← → · espacio</td><td>Moverse entre diapositivas</td></tr>
+      <tr><td>Inicio · Fin</td><td>Primera y última</td></tr>
+      <tr><td>N</td><td>Notas del docente, en esta misma pantalla</td></tr>
+      <tr><td>P</td><td>Modo presentador: abra el archivo en otra ventana, pulse P allí y comparta solo la de las diapositivas</td></tr>
+      <tr><td>I</td><td>Índice</td></tr>
+      <tr><td>L</td><td>En el teléfono: leer las 21 diapositivas de corrido</td></tr>
+      <tr><td>G</td><td>Glosario: de dónde sale cada código</td></tr>
+      <tr><td>T</td><td>Cronómetro de las salas, ajustable</td></tr>
+      <tr><td>B</td><td>Barra inferior</td></tr>
+      <tr><td>F</td><td>Pantalla completa</td></tr>
+      <tr><td>?</td><td>Esta ayuda</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<script>
+const SLIDES = [
+ {
+  "tipo": "portada",
+  "bloque": 0,
+  "kicker": "Maestría · Espacio académico",
+  "titulo": "Gestión de Configuración y Mantenimiento de Software",
+  "subtitulo": "Sesión 3 — Unidad 3 · Control de versiones y automatización (DevOps)",
+  "lema": "Cuando la velocidad y el control dejan de ser enemigos.",
+  "pie": "Encuentro sincrónico · Git · Estrategias de ramas · Versionamiento semántico · CI/CD · Métricas de entrega",
+  "codigos": [],
+  "notas": "El sistema es el mismo de las unidades 1 y 2. Esta unidad implementa la estrategia que se diseñó en la 2.",
+  "guion": []
+ },
+ {
+  "bloque": 0,
+  "kicker": "El reto de la Unidad 3 · Actividad en la plataforma",
+  "titulo": "De la estrategia en papel a un pipeline que funciona",
+  "bloques": [
+   {
+    "t": "cita_y_cajas",
+    "cita": [
+     "«La estrategia de gestión de configuración está aprobada. Ahora queremos verla funcionando: cada cambio revisado y probado automáticamente, y cada versión identificada y entregable con un solo paso.»"
+    ],
+    "autor": "Responsable del sistema que eligió cada grupo",
+    "cajas": [
+     {
+      "titulo": "Actividad 3 · Implementación de control de versiones y automatización",
+      "color": "coral",
+      "lineas": [
+       "30 % · 24 horas · grupal, de 2 a 3",
+       "Repositorio en Git · pipeline de CI/CD funcional",
+       "Documento técnico de 5 a 7 páginas o README.md",
+       "Evidencias: capturas, registros de ejecución, commits"
+      ]
+     },
+     {
+      "titulo": "Coherencia con la Unidad 2",
+      "color": "teal2",
+      "lineas": [
+       "Las ramas, las versiones, las líneas base y el control de cambios del F-09 al F-11 son lo que ahora se implementa."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "La actividad pide evidenciar el funcionamiento real del pipeline. Un archivo de configuración que nunca corrió no es un pipeline."
+   }
+  ],
+  "pie": "Los formatos de esta unidad son del F-15 al F-21. En el repositorio hay una plantilla con un pipeline que ya funciona, para copiar y adaptar.",
+  "codigos": [
+   [
+    "F-15",
+    "Formato del curso · Repositorio y convenciones"
+   ]
+  ],
+  "notas": "Recomendaciones de la actividad: usar GitHub o GitLab, evidenciar el pipeline funcionando y mantener coherencia con la Unidad 2.",
+  "guion": []
+ },
+ {
+  "bloque": 0,
+  "kicker": "Cómo vamos a usar la sesión",
+  "titulo": "Primero qué significa, después ejemplos, después ustedes",
+  "bloques": [
+   {
+    "t": "columnas",
+    "items": [
+     {
+      "kicker": "Primero",
+      "titulo": "Conceptos",
+      "color": "coral",
+      "texto": "Git, estrategias de ramas, versionamiento semántico, integración continua, entrega continua y cómo se mide."
+     },
+     {
+      "kicker": "Después",
+      "titulo": "Ejemplos",
+      "color": "teal",
+      "texto": "Las ramas y entregas de Flask, y la plantilla del curso con su pipeline corriendo en GitHub."
+     },
+     {
+      "kicker": "Y el resto de la sesión",
+      "titulo": "El hacer",
+      "color": "cafe",
+      "texto": "El taller en salas: el repositorio del sistema con la rama principal protegida y el primer pipeline en verde."
+     }
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "El bloque que no se recorta es el tercero: salir de la sesión con un pipeline en verde ahorra la mitad de la actividad."
+   }
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · El problema",
+  "titulo": "La tensión que DevOps intenta resolver",
+  "bloques": [
+   {
+    "t": "pares",
+    "izq": {
+     "titulo": "Desarrollo",
+     "color": "coral"
+    },
+    "der": {
+     "titulo": "Operaciones",
+     "color": "teal"
+    },
+    "filas": [
+     [
+      "Se le mide por las funcionalidades entregadas.\nQuiere cambiar rápido.",
+      "Se le mide por la ausencia de incidentes.\nQuiere que nada cambie."
+     ]
+    ]
+   },
+   {
+    "t": "aviso",
+    "rotulo": "La falsa sensación de control",
+    "texto": "Un pipeline configurado de afán no reduce la presión por entregar: a veces la aumenta, porque da una sensación de control que no siempre es real. Si las pruebas automáticas no cubren los casos que importan, el pipeline propaga errores tan rápido como correcciones."
+   }
+  ],
+  "pie": "Velocidad y control, en las condiciones correctas, no se oponen: se necesitan. Kim, Humble, Debois y Willis (2016).",
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Git",
+  "titulo": "Control distribuido e historia como documentación",
+  "bloques": [
+   {
+    "t": "tarjetas",
+    "estilo": "filete",
+    "items": [
+     {
+      "titulo": "Distribuido",
+      "color": "teal",
+      "lineas": [
+       "Cada clon tiene el repositorio completo, con toda la historia.",
+       "Se puede trabajar, ramificar y consultar la historia sin un servidor central."
+      ]
+     },
+     {
+      "titulo": "Trazabilidad",
+      "color": "coral",
+      "lineas": [
+       "Cada commit registra qué cambió, quién y cuándo.",
+       "Con buenos mensajes, la historia es documentación técnica.",
+       "Con «fix» o «cambios varios», la historia existe pero no sirve."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "tabla",
+    "filas": [
+     [
+      "Mensaje que no sirve",
+      "Mensaje que sirve"
+     ],
+     [
+      "fix",
+      "fix(sesiones): respeta SESSION_COOKIE_DOMAIN al renovar la cookie (#212)"
+     ],
+     [
+      "cambios varios",
+      "feat(api): agrega la ruta /version con el commit de la imagen"
+     ]
+    ]
+   }
+  ],
+  "pie": "Chacon y Straub (2014), capítulos 3 y 5. El formato tipo: alcance: descripción es el de Conventional Commits 1.0.0.",
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Estrategias de ramas",
+  "titulo": "El poder y el riesgo de las ramas",
+  "bloques": [
+   {
+    "t": "tabla",
+    "filas": [
+     [
+      "Estrategia",
+      "Cómo funciona",
+      "Conviene cuando",
+      "Riesgo"
+     ],
+     [
+      "GitFlow",
+      "Ramas develop, de funcionalidad, de entrega y de corrección urgente, además de main",
+      "Entregas con fecha y varias versiones en mantenimiento",
+      "Muchas ramas largas: integraciones costosas"
+     ],
+     [
+      "Flujo de GitHub",
+      "main siempre desplegable; una rama corta por cambio, que entra por PR",
+      "Entrega continua de una sola versión",
+      "Requiere pruebas automáticas confiables"
+     ],
+     [
+      "Desarrollo en tronco",
+      "Todos integran a main varias veces al día; lo inacabado se oculta con interruptores",
+      "Equipos con mucha automatización",
+      "Exige disciplina y pruebas rápidas"
+     ],
+     [
+      "Rama de mantenimiento",
+      "main para lo nuevo y una rama estable para corregir lo vigente",
+      "Hay usuarios en la versión anterior",
+      "Hay que llevar cada corrección a las dos ramas"
+     ]
+    ]
+   }
+  ],
+  "pie": "El error más frecuente es elegir una estrategia porque es popular y no porque resuelva un problema concreto. La elección se justifica con la Unidad 2.",
+  "codigos": [
+   [
+    "F-16",
+    "Formato del curso · Estrategia de ramas"
+   ]
+  ],
+  "notas": "Preguntar: ¿cambia la decisión si el equipo pasa de 2 a 10 personas?",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Versionamiento semántico · herramienta en vivo",
+  "titulo": "Un contrato de comunicación con quien usa el sistema",
+  "bloques": [
+   {
+    "t": "filas",
+    "ancho_etiqueta": 2.4,
+    "items": [
+     {
+      "etiqueta": "MAYOR",
+      "sub": "2.0.0 → 3.0.0",
+      "color": "coral",
+      "texto": "Cambios que rompen la compatibilidad: retirar una función, cambiar una ruta, cambiar el formato de una respuesta."
+     },
+     {
+      "etiqueta": "MENOR",
+      "sub": "3.0.0 → 3.1.0",
+      "color": "teal",
+      "texto": "Funcionalidad nueva compatible. También marcar algo como obsoleto, antes de retirarlo."
+     },
+     {
+      "etiqueta": "PARCHE",
+      "sub": "3.1.0 → 3.1.1",
+      "color": "teal2",
+      "texto": "Correcciones compatibles que no cambian la interfaz."
+     }
+    ],
+    "aparte": {
+     "titulo": "Para que el contrato valga",
+     "tono": "crema",
+     "color": "coral",
+     "lineas": [
+      "Hay que declarar qué es la interfaz pública.",
+      "Una versión publicada no se modifica: se publica otra.",
+      "Antes de 1.0.0 todo puede cambiar."
+     ]
+    }
+   }
+  ],
+  "pie": "Preston-Werner, T. Semantic Versioning 2.0.0, https://semver.org. En el aula se usa el interactivo: doce cambios reales para decidir qué versión sigue.",
+  "codigos": [
+   [
+    "F-17",
+    "Formato del curso · Versionamiento y entregas"
+   ]
+  ],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Integración continua",
+  "titulo": "Si duele, hágalo con más frecuencia",
+  "bloques": [
+   {
+    "t": "pasos",
+    "estilo": "regla",
+    "items": [
+     {
+      "titulo": "Integrar seguido",
+      "texto": "Los conflictos detectados el mismo día son baratos; los que se descubren tras semanas de trabajo divergente, no."
+     },
+     {
+      "titulo": "Cada integración se verifica sola",
+      "texto": "Estilo, pruebas y construcción corren en cada PR, sin que nadie lo pida."
+     },
+     {
+      "titulo": "Una integración rota se arregla primero",
+      "texto": "Mientras main esté en rojo, nadie integra otra cosa."
+     },
+     {
+      "titulo": "Las pruebas tienen que poder fallar",
+      "texto": "Un pipeline que ejecuta validaciones triviales es un teatro de automatización."
+     }
+    ],
+    "aparte": {
+     "titulo": "Humble y Farley (2010)",
+     "lineas": [
+      "«Si duele, hazlo con más frecuencia y trae el dolor hacia adelante.»",
+      "La integración continua es una práctica del equipo, no una herramienta."
+     ]
+    }
+   }
+  ],
+  "codigos": [
+   [
+    "F-18",
+    "Formato del curso · Diseño del pipeline"
+   ]
+  ],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Entrega continua",
+  "titulo": "El pipeline de despliegue",
+  "bloques": [
+   {
+    "t": "cadena",
+    "items": [
+     {
+      "titulo": "Commit",
+      "texto": "Estilo y pruebas rápidas"
+     },
+     {
+      "titulo": "Construcción",
+      "texto": "Un artefacto, una sola vez"
+     },
+     {
+      "titulo": "Staging",
+      "texto": "El mismo artefacto, probado en un entorno"
+     },
+     {
+      "titulo": "Aprobación",
+      "texto": "Quien tiene la autoridad (Unidad 2)"
+     },
+     {
+      "titulo": "Producción",
+      "texto": "El mismo artefacto, entregado"
+     }
+    ]
+   },
+   {
+    "t": "tabla",
+    "filas": [
+     [
+      "Principio",
+      "Por qué"
+     ],
+     [
+      "Construir una sola vez",
+      "Lo que se probó en staging es exactamente lo que llega a producción"
+     ],
+     [
+      "Gestionar los artefactos",
+      "Paquetes e imágenes viven en un repositorio de artefactos, identificados por versión y hash"
+     ],
+     [
+      "Poder volver atrás",
+      "Cada versión anterior sigue disponible y se sabe cómo desplegarla"
+     ]
+    ]
+   }
+  ],
+  "pie": "Humble y Farley (2010). La gestión de artefactos es parte del saber de control de versiones del syllabus.",
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Cómo se mide",
+  "titulo": "Cuatro métricas de entrega",
+  "bloques": [
+   {
+    "t": "tabla",
+    "filas": [
+     [
+      "Métrica",
+      "Qué mide",
+      "Cómo se aproxima con Git"
+     ],
+     [
+      "Frecuencia de despliegue",
+      "Cada cuánto llega una versión a producción",
+      "Etiquetas de versión por mes o por año"
+     ],
+     [
+      "Tiempo de entrega de los cambios",
+      "Cuánto tarda un commit en llegar a producción",
+      "Fecha de la etiqueta menos fecha del commit"
+     ],
+     [
+      "Tasa de fallos de cambio",
+      "Qué proporción de despliegues causa un fallo",
+      "Proporción de versiones de corrección (aproximación gruesa)"
+     ],
+     [
+      "Tiempo de restauración",
+      "Cuánto tarda en recuperarse el servicio",
+      "No se ve en Git: hace falta el registro de incidentes"
+     ]
+    ],
+    "aparte": {
+     "titulo": "Forsgren, Humble y Kim (2018)",
+     "lineas": [
+      "Son las métricas DORA de Accelerate.",
+      "Las dos primeras miden velocidad y las dos últimas estabilidad.",
+      "Los equipos de mejor desempeño son mejores en las cuatro: velocidad y estabilidad no se excluyen."
+     ]
+    }
+   }
+  ],
+  "pie": "La herramienta del curso, herramientas/entrega.py, calcula las tres primeras a partir del historial.",
+  "codigos": [
+   [
+    "F-20",
+    "Formato del curso · Métricas de entrega"
+   ]
+  ],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · Cultura",
+  "titulo": "Lo que las herramientas no pueden hacer",
+  "bloques": [
+   {
+    "t": "tarjetas",
+    "estilo": "filete",
+    "items": [
+     {
+      "titulo": "Flujo",
+      "color": "teal",
+      "lineas": [
+       "Hacer visible el trabajo y optimizar su paso de desarrollo a operación."
+      ]
+     },
+     {
+      "titulo": "Retroalimentación",
+      "color": "coral",
+      "lineas": [
+       "Detectar los problemas donde nacen, en las dos direcciones."
+      ]
+     },
+     {
+      "titulo": "Aprendizaje continuo",
+      "color": "cafe",
+      "lineas": [
+       "Tratar cada incidente como información, con revisiones sin culpables."
+      ]
+     }
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "Las adopciones de DevOps fracasan cuando se instalan pipelines sin cambiar los incentivos. Las tres vías son de Kim et al. (2016)."
+   }
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 1,
+  "kicker": "Bloque 1 · La cadena que sostiene la entrega",
+  "titulo": "Del repositorio a la evidencia",
+  "bloques": [
+   {
+    "t": "cadena",
+    "items": [
+     {
+      "titulo": "Repositorio",
+      "texto": "F-15 · convenciones y protección"
+     },
+     {
+      "titulo": "Ramas",
+      "texto": "F-16 · estrategia justificada"
+     },
+     {
+      "titulo": "Versiones",
+      "texto": "F-17 · SemVer y registro de cambios"
+     },
+     {
+      "titulo": "Pipeline",
+      "texto": "F-18 · CI y CD"
+     },
+     {
+      "titulo": "Evidencia",
+      "texto": "F-19 y F-20 · ejecuciones y métricas"
+     }
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "El F-21 verifica antes de entregar. Cada decisión debe poder señalarse en el repositorio o en una ejecución del pipeline."
+   }
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 2,
+  "kicker": "Bloque 2 · Ejemplo guiado 1 · F-16 y F-17",
+  "titulo": "Ramas y versiones en Flask",
+  "bloques": [
+   {
+    "t": "filas",
+    "ancho_etiqueta": 2.6,
+    "items": [
+     {
+      "etiqueta": "Estrategia",
+      "sub": "F-16",
+      "color": "teal",
+      "texto": "Rama de mantenimiento: **main** para la versión siguiente y **stable** para corregir la vigente. stable está 87 commits detrás de main y se integra a ella con frecuencia."
+     },
+     {
+      "etiqueta": "Ramas de trabajo",
+      "sub": "F-16",
+      "color": "teal",
+      "texto": "Cortas, una por PR. En el remoto solo quedan otras dos ramas, de un commit cada una."
+     },
+     {
+      "etiqueta": "Versiones",
+      "sub": "F-17",
+      "color": "coral",
+      "texto": "47 de 69 etiquetas cumplen versionamiento semántico. Las 22 que no: las antiguas de dos números (0.1 a 1.0), las que nombran ramas de mantenimiento (2.0.x) y **2.0.0rc1**, que en SemVer se escribe 2.0.0-rc1."
+     },
+     {
+      "etiqueta": "Contrato",
+      "sub": "F-17",
+      "color": "coral",
+      "texto": "La 2.3.0, una versión menor, retiró código obsoleto. Bajo SemVer estricto eso sería una versión mayor: Flask avisa con un período de obsolescencia."
+     }
+    ]
+   }
+  ],
+  "pie": "python herramientas/entrega.py flask --desde 2021-01-01",
+  "codigos": [],
+  "notas": "La lección: declarar la política de versiones importa tanto como seguirla.",
+  "guion": []
+ },
+ {
+  "bloque": 2,
+  "kicker": "Bloque 2 · Ejemplo guiado 2 · F-20",
+  "titulo": "Las métricas de entrega de Flask desde 2021",
+  "bloques": [
+   {
+    "t": "tabla",
+    "filas": [
+     [
+      "Métrica",
+      "Valor",
+      "Lectura"
+     ],
+     [
+      "Versiones por año",
+      "2021: 5 · 2022: 8 · 2023: 8 · 2024: 4 · 2025: 2 · 2026: 1",
+      "La frecuencia baja desde 2024, como mostró la Unidad 1"
+     ],
+     [
+      "Tiempo de entrega (mediana)",
+      "61 días",
+      "Un cambio típico espera dos meses a la siguiente versión"
+     ],
+     [
+      "Tiempo de entrega (percentil 75)",
+      "172 días",
+      "Una cuarta parte espera casi seis meses"
+     ],
+     [
+      "Versiones de corrección",
+      "22 de 28 (79 %)",
+      "Aproximación gruesa: en una biblioteca, una corrección no siempre es un fallo"
+     ],
+     [
+      "Commits con Conventional Commits",
+      "0 %",
+      "No es una convención del proyecto: el contrato está en CHANGES.rst"
+     ]
+    ],
+    "aparte": {
+     "titulo": "Cómo leerlo",
+     "tono": "crema",
+     "color": "coral",
+     "lineas": [
+      "Flask es una biblioteca: «desplegar» es publicar una versión.",
+      "Para un servicio, la etiqueta debería coincidir con el despliegue a producción.",
+      "Las métricas sirven para comparar el sistema consigo mismo en el tiempo."
+     ]
+    }
+   }
+  ],
+  "pie": "Cada commit cuenta en la primera versión que lo publicó, de cualquier rama. Detalle en ejemplo_flask/entregas.csv.",
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 2,
+  "kicker": "Bloque 2 · Ejemplo guiado 3 · F-15",
+  "titulo": "La plantilla del curso",
+  "bloques": [
+   {
+    "t": "pares",
+    "izq": {
+     "titulo": "Qué trae",
+     "color": "teal"
+    },
+    "der": {
+     "titulo": "Qué decide cada grupo",
+     "color": "coral"
+    },
+    "filas": [
+     [
+      "Un servicio mínimo en Flask con /salud y /version.\nPruebas, linter y formato.\nDockerfile con usuario sin privilegios.\nCHANGELOG.md y scripts de verificación.\nDos flujos: CI y entrega.",
+      "Reemplazar el servicio por su sistema.\nLa estrategia de ramas y la protección de main.\nQuién aprueba el entorno de producción.\nQué pruebas hacen falta para que el pipeline signifique algo."
+     ]
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "La plantilla resuelve la mecánica para que el grupo dedique las 24 horas a las decisiones. La calificación está en las decisiones y en la evidencia."
+   }
+  ],
+  "pie": "Carpeta plantilla/ del repositorio. Se copia a la raíz del repositorio del sistema.",
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 2,
+  "kicker": "Bloque 2 · Ejemplo guiado 4 · F-18 y F-19",
+  "titulo": "El pipeline de CI, corriendo en GitHub",
+  "bloques": [
+   {
+    "t": "pasos",
+    "items": [
+     {
+      "titulo": "calidad",
+      "texto": "ruff revisa errores comunes y formato. En la primera prueba local detectó tres líneas largas en un script de la propia plantilla.",
+      "min": 0
+     },
+     {
+      "titulo": "pruebas",
+      "texto": "pytest en Python 3.11, 3.12 y 3.13; los resultados quedan como artefactos de la ejecución, aunque fallen."
+     },
+     {
+      "titulo": "imagen",
+      "texto": "Construye la imagen con el commit adentro, la levanta y comprueba que /version devuelve ese commit."
+     }
+    ],
+    "aparte": {
+     "titulo": "Evidencia real",
+     "tono": "crema",
+     "color": "coral",
+     "lineas": [
+      "Ejecución 41256889959 del repositorio del curso, el 1 de noviembre de 2026.",
+      "Los cinco trabajos en verde, en unos 40 segundos.",
+      "Esto es lo que la actividad pide mostrar."
+     ]
+    }
+   }
+  ],
+  "pie": "plantilla/.github/workflows/ci.yml. Las acciones externas están fijadas por hash de commit, como recomendó la Unidad 2.",
+  "codigos": [
+   [
+    "F-19",
+    "Formato del curso · Registro de evidencias"
+   ]
+  ],
+  "notas": "Abrir la ejecución en la pestaña Actions del repositorio del curso.",
+  "guion": []
+ },
+ {
+  "bloque": 2,
+  "kicker": "Bloque 2 · Ejemplo guiado 5 · F-18",
+  "titulo": "El pipeline de entrega: una etiqueta, cinco pasos",
+  "bloques": [
+   {
+    "t": "pasos",
+    "items": [
+     {
+      "titulo": "verificar",
+      "texto": "La etiqueta tiene formato vMAYOR.MENOR.PARCHE, coincide con la versión declarada y el registro de cambios tiene su sección."
+     },
+     {
+      "titulo": "pruebas",
+      "texto": "Se repiten sobre lo que se va a entregar."
+     },
+     {
+      "titulo": "publicar-imagen",
+      "texto": "Una sola construcción, publicada en GitHub Container Registry con la versión y el commit como etiquetas."
+     },
+     {
+      "titulo": "staging",
+      "texto": "La imagen publicada, identificada por su digest, se levanta y pasa la prueba de humo."
+     },
+     {
+      "titulo": "produccion",
+      "texto": "Espera la aprobación configurada en el entorno y publica la entrega con las notas del registro de cambios."
+     }
+    ]
+   }
+  ],
+  "pie": "plantilla/.github/workflows/entrega.yml. En la plantilla, producción es publicar la entrega; si el sistema tiene un servidor, ese paso despliega allí.",
+  "codigos": [],
+  "notas": "Lo que la Unidad 2 llamó línea base de entrega es aquí la etiqueta más la imagen identificada por digest.",
+  "guion": []
+ },
+ {
+  "bloque": 3,
+  "kicker": "El hacer · Taller en salas",
+  "titulo": "De la sesión salen con el primer pipeline en verde",
+  "bloques": [
+   {
+    "t": "pasos",
+    "color": "cafe",
+    "items": [
+     {
+      "titulo": "Crear o preparar el repositorio del sistema",
+      "texto": "GitHub o GitLab, con la estructura y el .gitignore del F-15.",
+      "min": 5
+     },
+     {
+      "titulo": "Copiar la plantilla y adaptarla",
+      "texto": "Reemplazar el servicio o ajustar los comandos de prueba y construcción al lenguaje del sistema.",
+      "min": 10
+     },
+     {
+      "titulo": "Proteger main",
+      "texto": "Exigir PR y que la CI pase antes de integrar.",
+      "min": 5
+     },
+     {
+      "titulo": "Abrir el primer PR",
+      "texto": "Con un cambio pequeño, y ver correr el pipeline.",
+      "min": 5
+     },
+     {
+      "titulo": "Registrar la evidencia",
+      "texto": "Enlace a la ejecución y captura en el F-19.",
+      "min": 5
+     }
+    ]
+   }
+  ],
+  "pie": "Si el sistema no es Python, se conserva la estructura de los trabajos y se cambian los comandos.",
+  "codigos": [],
+  "notas": "Ajustar el cronómetro (T) al tiempo que quede.",
+  "guion": []
+ },
+ {
+  "bloque": 3,
+  "kicker": "Para tener al lado durante el taller",
+  "titulo": "Comandos y configuración",
+  "bloques": [
+   {
+    "t": "pares",
+    "izq": {
+     "titulo": "Comandos",
+     "color": "teal2"
+    },
+    "der": {
+     "titulo": "Configuración en GitHub",
+     "color": "cafe"
+    },
+    "filas": [
+     [
+      "**git switch -c** feat/mi-cambio\n**git commit -m** \"feat(api): agrega la ruta /estado\"\n**git tag -a** v0.2.0 **-m** \"Versión 0.2.0\" y **git push --tags**\n**python scripts/verificar_version.py** v0.2.0\n**python herramientas/entrega.py** sistema",
+      "Settings → Branches: proteger main, exigir PR y la verificación CI.\nSettings → Environments: crear staging y produccion; en produccion, quién aprueba.\nSettings → Actions: permitir que los flujos publiquen paquetes."
+     ]
+    ]
+   }
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "bloque": 3,
+  "kicker": "Cierre · qué sigue",
+  "titulo": "De automatizar la entrega a mejorar el sistema",
+  "bloques": [
+   {
+    "t": "columnas",
+    "items": [
+     {
+      "kicker": "Esta semana",
+      "titulo": "Actividad 3",
+      "color": "coral",
+      "texto": "Repositorio, estrategia de ramas, versionamiento semántico, pipeline funcionando y evidencias. Verificar con el F-21 antes de entregar."
+     },
+     {
+      "kicker": "Unidad 4",
+      "titulo": "Estrategias de mantenimiento y evolución",
+      "color": "teal",
+      "texto": "Con el pipeline como red de seguridad, se refactoriza y se moderniza el sistema, y se mide el impacto de cada mejora."
+     }
+    ]
+   },
+   {
+    "t": "banda",
+    "texto": "Un pipeline confiable es lo que hace posible refactorizar sin miedo. La Unidad 4 lo va a necesitar."
+   }
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ },
+ {
+  "tipo": "referencias",
+  "bloque": 0,
+  "kicker": "Referencias",
+  "titulo": "Fuentes de la sesión",
+  "items": [
+   "Chacon, S., & Straub, B. (2014). Pro Git (2.ª ed.). Apress. https://git-scm.com/book",
+   "Conventional Commits. (s. f.). Conventional Commits 1.0.0. https://www.conventionalcommits.org",
+   "Forsgren, N., Humble, J., & Kim, G. (2018). Accelerate: The science of lean software and DevOps. IT Revolution Press.",
+   "GitLab. (2024). CI/CD documentation. https://docs.gitlab.com/ee/ci/",
+   "Humble, J., & Farley, D. (2010). Continuous delivery: Reliable software releases through build, test, and deployment automation. Addison-Wesley.",
+   "Kim, G., Humble, J., Debois, P., & Willis, J. (2016). The DevOps handbook. IT Revolution Press.",
+   "Preston-Werner, T. (s. f.). Semantic Versioning 2.0.0. https://semver.org",
+   "Pallets. (2026). Flask [Repositorio de código fuente]. https://github.com/pallets/flask"
+  ],
+  "codigos": [],
+  "notas": "",
+  "guion": []
+ }
+];
+const GLOSARIO = [
+ [
+  "F-15",
+  "Formato del curso · Repositorio y convenciones",
+  "formato"
+ ],
+ [
+  "F-16",
+  "Formato del curso · Estrategia de ramas",
+  "formato"
+ ],
+ [
+  "F-17",
+  "Formato del curso · Versionamiento y entregas",
+  "formato"
+ ],
+ [
+  "F-18",
+  "Formato del curso · Diseño del pipeline",
+  "formato"
+ ],
+ [
+  "F-19",
+  "Formato del curso · Registro de evidencias",
+  "formato"
+ ],
+ [
+  "F-20",
+  "Formato del curso · Métricas de entrega",
+  "formato"
+ ],
+ [
+  "F-21",
+  "Formato del curso · Verificación previa a la entrega",
+  "formato"
+ ],
+ [
+  "CI",
+  "Integración continua: cada cambio se integra y se verifica automáticamente",
+  "sigla"
+ ],
+ [
+  "CD",
+  "Entrega o despliegue continuo: cada versión verificada puede llegar a producción con un solo paso",
+  "sigla"
+ ],
+ [
+  "SemVer",
+  "Versionamiento semántico: MAYOR.MENOR.PARCHE",
+  "sigla"
+ ],
+ [
+  "DORA",
+  "DevOps Research and Assessment: el programa de investigación detrás de las cuatro métricas de entrega",
+  "sigla"
+ ],
+ [
+  "GHCR",
+  "GitHub Container Registry: el repositorio de imágenes de contenedor de GitHub",
+  "sigla"
+ ],
+ [
+  "Digest",
+  "Hash que identifica una imagen de contenedor sin ambigüedad",
+  "sigla"
+ ],
+ [
+  "Prueba de humo",
+  "Verificación mínima de que lo desplegado arranca y responde",
+  "sigla"
+ ]
+];
+const DOCENTE = "César Augusto Vega Fernández";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fuerte = s => esc(s).split("**").map((p, i) => i % 2 ? `<b>${p}</b>` : p).join("");
+// una cadena con saltos de línea se abre en varios párrafos, igual que en el deck
+const parrafos = s => String(s ?? "").split("\n").filter(t => t.trim()).map(t => `<p>${fuerte(t)}</p>`).join("");
+const linea = l => typeof l === "string" ? (l ? `<div>${fuerte(l)}</div>` : "")
+                                         : `<div class="tenue">${fuerte(l.texto)}</div>`;
+const lis = ls => ls.map(l => l ? `<li>${fuerte(typeof l === "string" ? l : l.texto)}</li>` : "<li>&nbsp;</li>").join("");
+
+// ---------------------------------------------------------------- render de los bloques
+const BLOQUES = {
+  agenda: b => `<div class="agenda">${b.items.map(it => `
+      <div class="fila"><div class="n c-${it.color}">${esc(it.n)}</div>
+      <div class="t">${esc(it.titulo)}</div><div class="m">${it.min} min</div></div>`).join("")}</div>`,
+
+  tarjetas: b => `<div class="tarjetas">${b.items.map(it => {
+      const estilo = b.estilo || "solida";
+      const cab = estilo === "solida" ? `<h2 class="c-${it.color}">${esc(it.titulo)}</h2>`
+        : estilo === "filete" ? `<i class="c-${it.color}"></i><h2 class="t-${it.color}">${esc(it.titulo)}</h2>`
+        : `<h2${it.color ? ` class="t-${it.color}"` : ""}>${esc(it.titulo)}</h2>`;
+      const rot = it.rotulo ? `<div class="rotulo">${esc(it.rotulo)}</div>` : "";
+      return `<article class="tarjeta ${estilo}${it.tono === "crema" ? " crema" : ""}">${cab}
+        <div class="contenido">${rot}${it.lineas.map(linea).join("")}</div></article>`;
+    }).join("")}</div>`,
+
+  pasos: b => `<div class="pasos${b.estilo === "regla" ? " enumeradas" : ""}">${b.items.map((it, i) => `
+      <div class="paso${b.color === "cafe" ? " cafe" : ""}"><div class="n">${i + 1}</div>
+      <div class="txt"><b>${esc(it.titulo)}</b>${it.texto ? `<span>${fuerte(it.texto)}</span>` : ""}</div>
+      ${it.min ? `<div class="m">${it.min} min</div>` : "<div></div>"}</div>`).join("")}</div>`,
+
+  filas: b => `<div class="filas" style="--we:${(b.ancho_etiqueta || 2.6) * 62}px">${b.items.map(it =>
+      it.sub !== undefined
+        ? `<div class="fila-m" style="border-left-color:var(--${it.color || "teal"})">
+             <div><div class="et" style="color:var(--${it.color || "teal"})">${esc(it.etiqueta)}</div>
+             <div class="sub">${esc(it.sub)}</div></div><div class="tx">${fuerte(it.texto)}</div></div>`
+        : `<div class="fila-p ${it.color ? "viva" : it.tenue ? "apagada" : ""}"
+                ${it.color ? `style="background:var(--${it.color})"` : ""}>
+             <div class="et">${esc(it.etiqueta)}</div><div class="tx">${fuerte(it.texto)}</div></div>`).join("")}</div>`,
+
+  tabla: b => `<table class="${b.comparativa ? "comparativa" : ""}">
+      <thead><tr>${b.filas[0].map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead>
+      <tbody>${b.filas.slice(1).map(f => `<tr>${f.map(c => `<td>${fuerte(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`,
+
+  columnas: b => `<div class="columnas">${b.items.map(it => `
+      <div class="columna"><div class="barra c-${it.color}"></div>
+      <div class="k" style="color:var(--${it.color})">${esc(it.kicker)}</div>
+      <h2>${esc(it.titulo)}</h2><p>${fuerte(it.texto)}</p></div>`).join("")}</div>`,
+
+  pares: b => {
+    const cab = l => l.color ? `<div class="cab c-${l.color}">${esc(l.titulo)}</div>` : "";
+    const celda = (l, t, k) => `<div class="celda ${(l.tono || (k ? "crema" : "claro")) === "crema" ? "crema" : ""}">
+        ${l.color ? "" : `<span class="rot"${l.color_titulo ? ` style="color:var(--${l.color_titulo})"` : ""}>${esc(l.titulo)}</span>`}
+        ${parrafos(t)}</div>`;
+    const cabs = b.izq.color ? `<div class="pares">${cab(b.izq)}${cab(b.der)}</div>` : "";
+    return cabs + b.filas.map(f => `<div class="pares">${celda(b.izq, f[0], 0)}${celda(b.der, f[1], 1)}</div>`).join("");
+  },
+
+  rejilla: b => `<div class="rejilla-b" style="grid-template-columns:repeat(${b.cols || 3},1fr)">${b.items.map(it => `
+      <div class="celda${b.filete ? " filete" : ""}"${b.filete && it.color ? ` style="border-left-color:var(--${it.color})"` : ""}>
+      <b${it.color ? ` style="color:var(--${it.color})"` : ""}>${esc(it.titulo)}</b>
+      <span>${fuerte(it.texto)}</span></div>`).join("")}</div>`,
+
+  banda: b => `<div class="banda">${fuerte(b.texto)}</div>`,
+
+  aviso: b => `<div class="aviso${b.tono === "claro" ? " claro" : ""}">
+      ${b.rotulo ? `<span class="rot"${b.color_rotulo ? ` style="color:var(--${b.color_rotulo})"` : ""}>${esc(b.rotulo)}</span>` : ""}
+      ${parrafos(b.texto)}</div>`,
+
+  parrafo: b => `<div class="parrafo">${parrafos(b.texto)}</div>`,
+
+  cita_y_cajas: b => `<div class="cita-cajas">
+      <div class="cita">${b.cita.map(l => l ? `<p>${fuerte(l)}</p>` : "<br>").join("")}
+        <div class="autor">${esc(b.autor)}</div></div>
+      <div class="cajas">${b.cajas.map(c => `<div class="caja b-${c.color}"><h2>${esc(c.titulo)}</h2>
+        <ul>${lis(c.lineas)}</ul></div>`).join("")}</div></div>`,
+
+  cuadrante: b => `<div class="cuadrante">
+      <div class="plano"><div class="ejes">${esc(b.ejes)}</div>
+        <div class="rejilla4">${[0, 1].map(f => [0, 1].map(c => {
+            const q = b.celdas.find(x => x.col === c && x.fila === f);
+            return `<div class="q"><b>${esc(q.nombre)}</b><span>${esc(q.ejes)}</span></div>`;
+          }).join("")).join("")}</div></div>
+      <div class="apartes">
+        <div class="aparte"><h3>${esc(b.evidencias.titulo)}</h3><ul>${lis(b.evidencias.lineas)}</ul></div>
+        <div class="aparte crema"><h3 style="color:var(--coral)">${esc(b.contra.titulo)}</h3>
+          <ul>${lis(b.contra.lineas)}</ul></div></div></div>`,
+
+  heatmap: b => `<div class="heat">${b.items.map(it => `
+      <div class="cap bl-${it.color}${it.critica ? " critica" : ""}">
+      <div class="nom">${it.critica ? "★ " : ""}${esc(it.capacidad)}</div>
+      <div class="chip c-${it.color}">${esc(it.soporte)}</div></div>`).join("")}</div>`,
+
+  escala: b => `<div class="escala">
+      <div class="niveles">${b.niveles.map(n => `<div class="nivel c-${n.color}">
+        <div class="n">${esc(n.n)}</div><div class="nm">${esc(n.nombre)}</div></div>`).join("")}</div>
+      <div class="dims">${b.dimensiones.map(d => `<div class="dim">${esc(d)}</div>`).join("")}</div></div>`,
+
+  cadena: b => `<div class="cadena">${b.items.map((it, i) => `
+      <div class="esl c-${["coral", "cafe", "teal", "teal2"][i] || "osc"}"
+           ${i >= 4 ? 'style="background:var(--osc)"' : ""}>
+      <b>${esc(it.titulo)}</b><span>${esc(it.texto)}</span></div>`).join("")}</div>`,
+
+  cronologia: b => `<div class="crono-l">${b.items.map(it => `
+      <div class="fila"><div class="plazo c-${it.color}">${esc(it.plazo)}</div>
+      <div class="qué">${fuerte(it.texto)}</div></div>`).join("")}</div>`,
+
+  lista: b => `<ul class="lista">${b.items.map(t => `<li><span>${fuerte(t)}</span></li>`).join("")}</ul>`
+};
+
+// Un bloque con aparte se envuelve en una rejilla de dos columnas, como en el deck.
+function bloque(b) {
+  const dentro = BLOQUES[b.t](b);
+  if (!b.aparte) return dentro;
+  const lado = a => `<div class="aparte ${a.tono === "crema" ? "crema" : a.tono === "oscuro" ? "oscuro" : ""}">
+      <h3${a.color ? ` style="color:var(--${a.color})"` : ""}>${esc(a.titulo)}</h3><ul>${lis(a.lineas)}</ul></div>`;
+  const lados = lado(b.aparte) + (b.aparte2 ? lado(b.aparte2) : "");
+  return `<div class="con-aparte" style="--wap:${(b.aparte.w || 3.93) * 72}px">${dentro}
+      <div class="apartes">${lados}</div></div>`;
+}
+
+function render(d) {
+  if (d.tipo === "portada") {
+    return `<section class="slide portada oscura" data-bloque="0">
+      <div class="barras" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="kicker" data-anim style="--i:0">${esc(d.kicker)}</div>
+      <h1 data-anim style="--i:1">${esc(d.titulo)}</h1>
+      <div class="sub" data-anim style="--i:2">${esc(d.subtitulo)}</div>
+      <div class="lema" data-anim style="--i:3">${esc(d.lema)}</div>
+      <div class="docente" data-anim style="--i:4">${esc(DOCENTE)}</div>
+      <div class="pie" data-anim style="--i:5">${esc(d.pie)}</div></section>`;
+  }
+  if (d.tipo === "referencias") {
+    return `<section class="slide" data-bloque="0">
+      <div class="kicker">${esc(d.kicker)}</div><h1>${esc(d.titulo)}</h1><div class="regla"></div>
+      <div class="cuerpo"><div class="refs" data-anim style="--i:0">
+        ${d.items.map(r => `<p>${esc(r)}</p>`).join("")}</div></div></section>`;
+  }
+  const cuerpo = d.bloques.map((b, k) =>
+    `<div data-anim style="--i:${k + 1}">${bloque(b)}</div>`).join("");
+  return `<section class="slide" data-bloque="${d.bloque}">
+    <div class="kicker" data-anim style="--i:0">${esc(d.kicker)}</div>
+    <h1 data-anim style="--i:0">${esc(d.titulo)}</h1>
+    <div class="regla" data-anim style="--i:0"></div>
+    <div class="cuerpo">${cuerpo}</div>
+    ${d.pie ? `<div class="pie" data-anim style="--i:${d.bloques.length + 1}">${esc(d.pie)}</div>` : ""}
+  </section>`;
+}
+
+$("lienzo").innerHTML = SLIDES.map(render).join("");
+const slides = [...document.querySelectorAll(".slide")];
+
+// ---------------------------------------------------------------- escala
+function escalar() {
+  const pres = document.body.classList.contains("presenter");
+  const barra = pres ? 0 : ($("estado").classList.contains("oculta") ? 12 : 46);
+  const ancho = pres ? innerWidth * 0.56 : innerWidth - 24;
+  const alto = pres ? innerHeight * 0.58 : innerHeight - barra;
+  const k = Math.min(ancho / 1280, alto / 720);
+  const l = $("lienzo");
+  l.style.transform = `translate(-50%, -50%) scale(${k})`;
+  l.style.left = pres ? "calc(16px + 28vw)" : "50%";
+  l.style.top = pres ? "calc(16px + 29vh)" : "";
+}
+addEventListener("resize", escalar);
+
+// ---------------------------------------------------------------- navegación
+let actual = 0;
+const HAY_NOTAS = SLIDES.some(d => (d.notas || "").trim());
+if (!HAY_NOTAS) { $("b-notas").hidden = true; $("notas").hidden = true; $("b-presentador").hidden = true; }
+
+function ir(n, atras) {
+  n = Math.max(0, Math.min(slides.length - 1, n));
+  slides[actual].classList.remove("viva", "entra", "entra-atras");
+  actual = n;
+  const s = slides[actual];
+  s.classList.add("viva");
+  void s.offsetWidth;                       // reinicia las animaciones de entrada
+  s.classList.add(atras ? "entra-atras" : "entra");
+  $("cuenta").textContent = `${n + 1} / ${slides.length}`;
+  $("progreso").style.width = ((n + 1) / slides.length * 100) + "%";
+  $("titulo-actual").textContent = SLIDES[n].titulo.replace(/\n/g, " ");
+  $("notas-tit").textContent = `${n + 1} · ${SLIDES[n].titulo.replace(/\n/g, " ")}`;
+  $("notas-txt").innerHTML = htmlGuion(n);
+  $("notas-sig").textContent = n + 1 < SLIDES.length
+    ? "Sigue: " + SLIDES[n + 1].titulo.replace(/\n/g, " ") : "Última diapositiva.";
+  const cod = SLIDES[n].codigos || [];
+  $("notas-cod").innerHTML = cod.length
+    ? `<h4>Qué significa cada código de esta diapositiva</h4>` +
+      cod.map(([c, t]) => `<div><b>${esc(c)}</b> · ${esc(t)}</div>`).join("")
+    : "";
+  location.hash = n + 1;
+  if (SLIDES[n].cronometro) abrirCrono(SLIDES[n].cronometro); else cerrarCrono();
+  pintarPresentador();
+  if (!remoto) emitir();
+  escalar();
+}
+const sig = () => ir(actual + 1);
+const ant = () => ir(actual - 1, true);
+
+addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); sig(); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); ant(); }
+  else if (e.key === "Home") ir(0);
+  else if (e.key === "End") ir(slides.length - 1);
+  else if (e.key === "Escape") { $("indice").classList.remove("abierto"); $("ayuda").classList.remove("abierta"); $("glosario").classList.remove("abierto"); }
+  else {
+    const k = e.key.toLowerCase();
+    if (k === "n") alternarNotas();
+    else if (k === "i") $("indice").classList.toggle("abierto");
+    else if (k === "g") $("glosario").classList.toggle("abierto");
+    else if (k === "l") alternarLectura();
+    else if (k === "p") alternarPresentador();
+    else if (k === "t") { $("crono").classList.contains("visible") ? cerrarCrono() : abrirCrono(); }
+    else if (k === "b") { $("estado").classList.toggle("oculta"); document.body.classList.toggle("sin-barra"); escalar(); }
+    else if (k === "f") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+    else if (k === "?" || e.key === "?") $("ayuda").classList.toggle("abierta");
+  }
+});
+$("escenario").addEventListener("click", e => {
+  if (tactil()) return;                       // en el teléfono se pasa deslizando o con los botones
+  (e.clientX > innerWidth * 0.35) ? sig() : ant();
+});
+let x0 = null;
+addEventListener("touchstart", e => x0 = e.touches[0].clientX, { passive: true });
+addEventListener("touchend", e => {
+  if (x0 === null || document.body.classList.contains("lectura")) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 50) dx < 0 ? sig() : ant();
+  x0 = null;
+});
+$("b-sig").onclick = e => { e.stopPropagation(); sig(); };
+$("b-ant").onclick = e => { e.stopPropagation(); ant(); };
+$("b-ayuda").onclick = () => $("ayuda").classList.toggle("abierta");
+$("ayuda").onclick = () => $("ayuda").classList.remove("abierta");
+
+// ---------------------------------------------------------------- índice
+$("rejilla").innerHTML = SLIDES.map((d, i) => `<button class="mini" data-ir="${i}" data-bloque="${d.bloque}">
+   <div class="num">${i + 1}</div>
+   <div class="t">${esc(d.titulo.replace(/\n/g, " "))}</div></button>`).join("");
+$("rejilla").addEventListener("click", e => {
+  const b = e.target.closest("[data-ir]");
+  if (b) { ir(+b.dataset.ir); $("indice").classList.remove("abierto"); }
+});
+$("b-indice").onclick = () => $("indice").classList.toggle("abierto");
+$("b-crono").onclick = () => $("crono").classList.contains("visible") ? cerrarCrono() : abrirCrono();
+
+// ---------------------------------------------------------------- modo lectura (teléfono)
+const tactil = () => matchMedia("(pointer: coarse)").matches;
+function alternarLectura() {
+  const lee = document.body.classList.toggle("lectura");
+  $("b-lectura").setAttribute("aria-pressed", lee);
+  $("b-lectura").textContent = lee ? "Diapositivas" : "Lectura";
+  try { localStorage.setItem("gcms-s3-lectura", lee ? "1" : ""); } catch (e) {}
+  if (lee) slides[actual].scrollIntoView({ block: "start" });
+  else { ir(actual); scrollTo(0, 0); }
+}
+$("b-lectura").onclick = alternarLectura;
+try { if (localStorage.getItem("gcms-s3-lectura")) alternarLectura(); } catch (e) {}
+
+// ---------------------------------------------------------------- glosario
+const FAMILIAS = [
+ [
+  "formato",
+  "Formatos del curso · F-nn",
+  "F-15 a F-21 son de la Unidad 3. La numeración continúa la de las unidades anteriores."
+ ],
+ [
+  "sigla",
+  "Siglas y términos",
+  ""
+ ]
+];
+const minutoPlan = SLIDES.map(d => d.minuto ?? null);
+$("gfamilias").innerHTML = FAMILIAS.map(([f, tit, de]) => {
+  const items = GLOSARIO.filter(g => g[2] === f);
+  if (!items.length) return "";
+  return `<section class="gfam"><h3>${esc(tit)}</h3>${de ? `<div class="de">${esc(de)}</div>` : ""}
+    <dl>${items.map(g => `<dt>${esc(g[0])}</dt><dd>${esc(g[1])}</dd>`).join("")}</dl></section>`;
+}).join("");
+$("b-glosario").onclick = () => $("glosario").classList.toggle("abierto");
+
+// ---------------------------------------------------------------- notas
+function alternarNotas() {
+  const abierto = $("notas").classList.toggle("abiertas");
+  $("b-notas").setAttribute("aria-pressed", abierto);
+}
+$("b-notas").onclick = alternarNotas;
+
+// ---------------------------------------------------------------- guion del orador
+// El guion viene partido en párrafos; las acotaciones entre paréntesis van en cursiva y no se leen.
+const acot = t => esc(t).replace(/\(([^)]*)\)/g, '<span class="acot">($1)</span>');
+function htmlGuion(n) {
+  const segs = SLIDES[n].guion || [];
+  if (!segs.length) return esc(SLIDES[n].notas || "");
+  return segs.map(ps => `<div class="seg-nota">${ps.map(t => `<p>${acot(t)}</p>`).join("")}</div>`).join("");
+}
+
+// ---------------------------------------------------------------- modo presentador y sincronización
+// Se abre el mismo archivo en dos ventanas; en una se pulsa P. Cada avance se transmite a la otra por
+// BroadcastChannel y, de respaldo, por localStorage.
+const VENTANA = Math.random().toString(36).slice(2);
+const canal = ("BroadcastChannel" in window) ? new BroadcastChannel("gcms-s3-deck") : null;
+let remoto = false, ultimoPar = 0, t0 = Date.now();
+function emitir() {
+  const m = { n: actual, src: VENTANA, en: Date.now() };
+  try { canal && canal.postMessage(m); } catch (e) {}
+  try { localStorage.setItem("gcms-s3-deck", JSON.stringify(m)); } catch (e) {}
+}
+function recibir(m) {
+  if (!m || m.src === VENTANA) return;
+  ultimoPar = Date.now(); pintarSinc();
+  if (m.ping) { emitir(); return; }
+  if (m.n === actual) return;
+  remoto = true;
+  try { ir(m.n, m.n < actual); } finally { remoto = false; }
+}
+if (canal) canal.onmessage = e => recibir(e.data);
+addEventListener("storage", e => {
+  if (e.key === "gcms-s3-deck" && e.newValue) { try { recibir(JSON.parse(e.newValue)); } catch (err) {} }
+});
+function pintarSinc() {
+  if (!$("p-sinc")) return;                  // la versión publicada no trae el panel
+  $("p-sinc").textContent = Date.now() - ultimoPar < 15000 ? "Sincronizado con la ventana de las diapositivas."
+    : "Esperando la ventana de las diapositivas… Ábranla con el mismo archivo.";
+}
+const mmss = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+function pintarPresentador() {
+  if (!document.body.classList.contains("presenter") || !$("pnotas")) return;
+  $("pnotas").innerHTML = htmlGuion(actual);
+  $("pnotas").scrollTop = 0;
+  const cod = SLIDES[actual].codigos || [];
+  $("pcods").innerHTML = cod.length ? cod.map(([c, t]) => `<div><b>${esc(c)}</b> · ${esc(t)}</div>`).join("") : "";
+  $("p-pos").textContent = `Diapositiva ${actual + 1} / ${slides.length}`;
+  const plan = minutoPlan[actual];
+  $("p-min").textContent = plan === null || plan === undefined ? "" : `planeada en el minuto ${plan}`;
+  $("p-sigue").textContent = actual < slides.length - 1
+    ? "Sigue: " + SLIDES[actual + 1].titulo.replace(/\n/g, " ") : "Fin de la presentación";
+  pintarRitmo();
+}
+function pintarRitmo() {           // el reloj contra el minuto planeado de la diapositiva
+  const plan = minutoPlan[actual], r = $("p-ritmo");
+  if (!r) return;
+  if (plan === null || plan === undefined) { r.textContent = ""; r.className = "ritmo"; return; }
+  const d = Math.round((Date.now() - t0) / 60000 - plan);
+  r.className = "ritmo " + (Math.abs(d) <= 2 ? "bien" : d > 0 ? "tarde" : "pronto");
+  r.textContent = Math.abs(d) <= 2 ? "a tiempo" : d > 0 ? `${d} min atrasado` : `${-d} min adelantado`;
+}
+function alternarPresentador(on) {
+  if (!HAY_NOTAS) return;                    // la versión publicada no lo tiene
+  on = on ?? !document.body.classList.contains("presenter");
+  document.body.classList.toggle("presenter", on);
+  $("notas").classList.remove("abiertas"); if ($("phelp")) $("phelp").hidden = true;
+  if (on) cerrarCrono();
+  escalar(); pintarPresentador(); emitir();
+}
+setInterval(() => {
+  if ($("p-reloj")) $("p-reloj").textContent = mmss(Math.floor((Date.now() - t0) / 1000));
+  pintarSinc(); if (document.body.classList.contains("presenter")) pintarRitmo();
+}, 1000);
+if ($("phelp")) {                           // solo en la versión del docente
+  $("b-presentador").onclick = () => { $("phelp").hidden = !$("phelp").hidden; };
+  $("phelp-ok").onclick = () => { $("phelp").hidden = true; };
+  $("phelp-ya").onclick = () => alternarPresentador(true);
+  $("p-sig").onclick = () => sig();
+  $("p-ant").onclick = () => ant();
+  $("p-salir").onclick = () => alternarPresentador(false);
+  $("p-reiniciar").onclick = () => { t0 = Date.now(); pintarRitmo(); };
+}
+
+// ---------------------------------------------------------------- cronómetro de las salas
+// El Taller 1 son 8 minutos y el Taller 2 son 10: el cronómetro arranca en 10 y se ajusta de a un minuto.
+let minutosTaller = 30;
+try { minutosTaller = +localStorage.getItem("gcms-s3-taller") || 30; } catch (e) {}
+let restan = minutosTaller * 60, cTic = null;
+function pintarCrono() {
+  $("crono-t").textContent = mmss(restan);
+  $("crono-t").classList.toggle("poco", restan <= 60);
+}
+function abrirCrono(min) {
+  if (!$("crono").classList.contains("visible") && !cTic) {
+    if (typeof min === "number") minutosTaller = min;        // los minutos que declara el taller
+    restan = minutosTaller * 60; pintarCrono();
+  }
+  $("crono").classList.add("visible");
+}
+function ajustarCrono(delta) {
+  if (cTic) { restan = Math.max(30, restan + delta * 60); }
+  else { minutosTaller = Math.min(60, Math.max(1, minutosTaller + delta)); restan = minutosTaller * 60;
+         try { localStorage.setItem("gcms-s3-taller", minutosTaller); } catch (e) {} }
+  pintarCrono();
+}
+$("crono-menos").onclick = () => ajustarCrono(-1);
+$("crono-mas").onclick = () => ajustarCrono(1);
+function cerrarCrono() { $("crono").classList.remove("visible"); clearInterval(cTic); cTic = null; $("crono-play").textContent = "Iniciar"; }
+$("crono-play").onclick = () => {
+  if (cTic) { clearInterval(cTic); cTic = null; $("crono-play").textContent = "Reanudar"; return; }
+  cTic = setInterval(() => { if (restan > 0) { restan--; pintarCrono(); } }, 1000);
+  $("crono-play").textContent = "Pausar";
+};
+$("crono-cerrar").onclick = cerrarCrono;
+
+// ---------------------------------------------------------------- arranque
+const inicial = parseInt(location.hash.replace("#", ""), 10);
+remoto = true;            // al abrir, esta ventana no arrastra a la que ya esté proyectando
+if (location.hash.slice(1) === "presentador" && HAY_NOTAS) document.body.classList.add("presenter");
+ir(Number.isFinite(inicial) && inicial > 0 ? inicial - 1 : 0);
+remoto = false;
+try { canal && canal.postMessage({ ping: true, src: VENTANA }); } catch (e) {}
+escalar();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>GCMS S3 · Enunciado de la Actividad 3</title>
+<link rel="stylesheet" href="documentos.css"/>
+</head>
+<body>
+
+<div class="portada">
+  <div class="kicker">Gestión de Configuración y Mantenimiento de Software · Unidad 3</div>
+  <h1>Implementación de control de versiones y automatización</h1>
+  <div class="sub">Enunciado de la Actividad 3 · Maestría en Ingeniería de Software, Universidad de La Sabana</div>
+</div>
+
+<h2>El encargo</h2>
+<div class="recuadro crema">
+  <p>«La estrategia de gestión de configuración está aprobada. Ahora queremos verla funcionando: cada cambio revisado y
+  probado automáticamente, y cada versión identificada y entregable con un solo paso.»</p>
+  <p class="nota">Responsable del sistema que eligió cada grupo.</p>
+</div>
+<p>El sistema es el mismo de las unidades anteriores. Lo que se implementa es la estrategia de la Actividad 2: las
+ramas, las versiones, las líneas base y el control de cambios del F-09 al F-11. Lo que se construya aquí es la red de
+seguridad para las mejoras de la Unidad 4.</p>
+
+<h2>Actividad 3 · Implementación de control de versiones y automatización (DevOps)</h2>
+<table>
+  <tbody>
+    <tr><td class="campo">Modalidad</td><td>Grupal, de 2 a 3 estudiantes · calificable, <b>30 %</b></td></tr>
+    <tr><td class="campo">Dedicación</td><td>24 horas</td></tr>
+    <tr><td class="campo">Entregables</td><td>
+      <b>1.</b> El repositorio del sistema en GitHub o GitLab.<br/>
+      <b>2.</b> Un pipeline de CI/CD funcional: construcción, pruebas y despliegue.<br/>
+      <b>3.</b> Un documento técnico de <b>5 a 7 páginas</b> o un <b>README.md</b>.<br/>
+      <b>4.</b> Evidencias: capturas, registros de ejecución y commits.</td></tr>
+    <tr><td class="campo">Reto</td><td>¿Cómo implementar una estrategia de control de versiones y automatización que permita gestionar eficientemente la evolución del software?</td></tr>
+    <tr><td class="campo">Instrumento</td><td>Rúbrica, publicada en el aula virtual</td></tr>
+  </tbody>
+</table>
+
+<h3>Qué debe mostrar la entrega</h3>
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:27%">Elemento</th><th>Qué debe mostrar</th><th style="width:12%">Formato</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Repositorio</td><td>Estructura, convenciones de commits, rama principal protegida y roles escritos en el repositorio</td><td>F-15</td></tr>
+    <tr><td>2</td><td>Estrategia de ramas</td><td>La estrategia elegida, por qué es la adecuada para este sistema y este equipo, y cómo se aplicó</td><td>F-16</td></tr>
+    <tr><td>3</td><td>Versionamiento semántico</td><td>Las reglas de versión, las etiquetas, el registro de cambios y al menos una versión publicada</td><td>F-17</td></tr>
+    <tr><td>4</td><td>Pipeline de CI/CD</td><td>Las etapas de construcción, pruebas y despliegue, sus disparadores, los artefactos y la aprobación</td><td>F-18</td></tr>
+    <tr><td>5</td><td>Evidencias</td><td>Ejecuciones reales del pipeline, una fallida y otra corregida, PR revisados y la versión entregada</td><td>F-19</td></tr>
+    <tr><td>6</td><td>Métricas de entrega</td><td>Frecuencia de entrega y tiempo de entrega de los cambios en el período del curso</td><td>F-20</td></tr>
+  </tbody>
+</table>
+
+<h3>Criterios de evaluación</h3>
+<p>La rúbrica tiene cinco criterios. Los niveles y los puntajes están en el aula virtual.</p>
+<table>
+  <thead><tr><th style="width:36%">Criterio</th><th>Qué se observa en el nivel más alto</th></tr></thead>
+  <tbody>
+    <tr><td>Implementación en Git</td><td>Uso correcto, estructurado y profesional de Git</td></tr>
+    <tr><td>Estrategia de ramas y versionamiento</td><td>Estrategia clara, consistente y bien aplicada</td></tr>
+    <tr><td>Automatización CI/CD</td><td>Pipeline funcional, completo y automatizado</td></tr>
+    <tr><td>Trazabilidad y control de cambios</td><td>Trazabilidad completa y verificable</td></tr>
+    <tr><td>Documentación y evidencias</td><td>Evidencias claras, completas y bien documentadas</td></tr>
+  </tbody>
+</table>
+
+<h2>Paso a paso</h2>
+<ol>
+  <li><b>Preparar el repositorio</b> (F-15): copiar la carpeta <code>plantilla/</code> de este repositorio a la raíz del
+  repositorio del sistema y reemplazar el servicio de ejemplo por el sistema, o ajustar los comandos de prueba y
+  construcción a su lenguaje.</li>
+  <li><b>Proteger la rama principal</b>: exigir PR y que la CI pase antes de integrar.</li>
+  <li><b>Definir y aplicar la estrategia de ramas</b> (F-16) y las <b>reglas de versión</b> (F-17).</li>
+  <li><b>Hacer que el pipeline signifique algo</b> (F-18): pruebas que fallen cuando el sistema falla.</li>
+  <li><b>Publicar al menos una versión</b> con una etiqueta y dejar que el pipeline de entrega la lleve hasta el final.</li>
+  <li><b>Registrar las evidencias</b> mientras se trabaja (F-19), no al final.</li>
+  <li><b>Medir</b> con <code>herramientas/entrega.py</code> (F-20), <b>verificar</b> con el F-21 y entregar.</li>
+</ol>
+<pre>git switch -c feat/primera-mejora
+git commit -m "feat(api): agrega la ruta /estado"
+git push -u origin feat/primera-mejora          # abrir el PR y ver correr la CI
+git tag -a v0.2.0 -m "Versión 0.2.0" &amp;&amp; git push origin v0.2.0
+python herramientas/entrega.py &lt;sistema&gt;</pre>
+
+<h2>Material de la unidad</h2>
+<ul>
+  <li>Chacon, S., &amp; Straub, B. (2014). <i>Pro Git</i> (2.ª ed.). Apress. Capítulos 3 (ramas) y 5 (Git distribuido). https://git-scm.com/book</li>
+  <li>Humble, J. (2015). <i>Continuous delivery</i> [Grabación de video]. Addison-Wesley Professional. Capítulos 1 a 3. Disponible en la biblioteca.</li>
+  <li>GitLab. (2024). <i>CI/CD documentation</i>. https://docs.gitlab.com/ee/ci/</li>
+  <li>Complementarios: Docker, <i>Docker documentation</i>, https://docs.docker.com; ThoughtWorks, <i>Technology Radar</i>, https://www.thoughtworks.com/radar</li>
+</ul>
+
+<h2>Errores frecuentes</h2>
+<ul>
+  <li><b>Un pipeline que nunca falla.</b> Si las pruebas no pueden fallar, el pipeline no protege nada. Muestren una ejecución fallida y su corrección.</li>
+  <li><b>Integrar directo a main.</b> Si main no está protegida, la estrategia de ramas es solo una intención.</li>
+  <li><b>Construir en cada etapa.</b> Lo que se prueba en staging debe ser exactamente lo que llega a producción.</li>
+  <li><b>Etiquetas que no coinciden con la versión declarada.</b> El script <code>verificar_version.py</code> de la plantilla lo impide.</li>
+  <li><b>Evidencias reconstruidas al final.</b> Se nota, y suelen faltar las ejecuciones fallidas.</li>
+  <li><b>Una estrategia distinta de la diseñada en la Unidad 2</b> sin explicar por qué cambió.</li>
+</ul>
+
+<div class="pie-doc">GCMS · Unidad 3 · Enunciado de la Actividad 3 · César Augusto Vega Fernández · Universidad de La Sabana ·
+Licencia CC BY-NC-SA 4.0</div>
+</body>
+</html>
