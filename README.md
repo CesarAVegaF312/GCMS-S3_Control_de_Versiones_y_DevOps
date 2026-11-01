@@ -125,7 +125,7 @@ GCMS-S3_Control_de_Versiones_y_DevOps/
 
 | Archivo | Descripción |
 |---|---|
-| [`semver_interactivo.html`](interactivos/semver_interactivo.html) | Doce cambios, casi todos del registro de cambios de Flask, para decidir qué número sube bajo SemVer estricto y compararlo con lo que hizo el proyecto. |
+| [`semver_interactivo.html`](interactivos/semver_interactivo.html) | Doce cambios, la mayoría del registro de cambios de Flask, para decidir qué número sube bajo SemVer estricto y compararlo con lo que hizo el proyecto. |
 | [`pipeline_interactivo.html`](interactivos/pipeline_interactivo.html) | Los dos flujos de la plantilla: se elige qué trae el cambio y se ve en qué etapa se detiene, qué dice el registro y qué se habría entregado sin esa etapa. |
 
 ---
