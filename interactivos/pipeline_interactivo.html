@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Recorrido por el pipeline — GCMS Unidad 3</title>
+<style>
+:root{
+  --osc:#1C2B33; --txt:#31424B; --gris:#5E6E76; --claro:#EFF2F3; --linea:#CFDAE0; --crema:#F6EAE1;
+  --coral:#C2622C; --teal:#46707E; --verde:#2F6B4C; --rojo:#A1352A; --ambar:#A9781E; --foco:#0B63CE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:#F3F5F6;color:var(--txt);font-size:16px;line-height:1.5}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.header{background:var(--osc);color:#fff;padding:16px 28px}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:13px;color:#9FB2BA;margin-top:2px}
+.header .encuadre{font-size:15px;color:#DCE6EA;margin-top:10px;max-width:1050px;border-left:4px solid var(--coral);padding-left:12px}
+.wrap{max-width:1100px;margin:22px auto 40px;padding:0 16px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(28,43,51,.08);padding:22px 26px;margin-bottom:18px}
+.card h2{font-size:19px;color:var(--osc);margin-bottom:6px}
+.small{font-size:14px;color:var(--gris)}
+.pestanas{display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap}
+.pestanas button,.casos button{font:inherit;font-size:14.5px;padding:8px 14px;border-radius:8px;border:1px solid var(--linea);background:#fff;cursor:pointer;color:var(--osc);text-align:left}
+.pestanas button[aria-pressed="true"]{background:var(--osc);color:#fff;border-color:var(--osc)}
+.casos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.casos button:hover{border-color:var(--teal);background:var(--claro)}
+.casos button[aria-pressed="true"]{border-color:var(--coral);background:var(--crema)}
+.etapas{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;margin-top:16px}
+.etapa{border-radius:8px;padding:10px;background:var(--claro);border:2px solid var(--linea);min-height:110px;transition:background .3s,border-color .3s}
+.etapa b{display:block;font-size:14px;color:var(--osc)}
+.etapa .que{font-size:12.5px;color:var(--gris);display:block;margin-top:3px}
+.etapa .est{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;border-radius:10px;padding:1px 8px;background:#fff;color:var(--gris)}
+.etapa.corre{border-color:var(--ambar);background:#FBF1DC}
+.etapa.corre .est{color:var(--ambar)}
+.etapa.ok{border-color:#B9DCC6;background:#E3F1E8}
+.etapa.ok .est{color:var(--verde)}
+.etapa.falla{border-color:#EEC0B9;background:#FBE9E6}
+.etapa.falla .est{color:var(--rojo)}
+.etapa.omitida{opacity:.55}
+.registro{margin-top:14px;background:#14222A;color:#DCE6EA;border-radius:8px;padding:12px 14px;font-family:Consolas,'Courier New',monospace;font-size:13px;min-height:72px;white-space:pre-wrap}
+.leccion{margin-top:12px;background:var(--crema);border-radius:8px;padding:10px 14px;font-size:15px;display:none}
+.leccion.visible{display:block}
+@media (max-width:760px){.etapas{grid-auto-flow:row}.header{padding:14px 16px}.card{padding:18px 16px}}
+@media (prefers-reduced-motion:reduce){.etapa{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Recorrido por el pipeline</h1>
+  <p>Gestión de Configuración y Mantenimiento de Software · Unidad 3 · Formato F-18</p>
+  <div class="encuadre">Los dos flujos de la plantilla del curso. Elija qué trae el cambio y vea hasta dónde llega:
+    en qué etapa se detiene, qué dice el registro y qué se habría entregado si esa etapa no existiera.</div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>Elija el flujo y el cambio</h2>
+    <div class="pestanas" role="group" aria-label="Flujo">
+      <button data-f="ci" aria-pressed="true">CI · cada PR</button>
+      <button data-f="entrega" aria-pressed="false">Entrega · cada etiqueta</button>
+    </div>
+    <div class="casos" id="casos" role="group" aria-label="Cambio"></div>
+    <div class="etapas" id="etapas"></div>
+    <div class="registro" id="registro" aria-live="polite">Elija un cambio para ver el recorrido.</div>
+    <div class="leccion" id="leccion"></div>
+  </div>
+  <div class="card">
+    <h2>De dónde sale</h2>
+    <p class="small">Las etapas son las de <code>plantilla/.github/workflows/ci.yml</code> y <code>entrega.yml</code>. El caso «la
+      respuesta de /salud cambia a mayúsculas» ocurrió de verdad en la ejecución 41257272061 del repositorio del curso;
+      el mensaje del registro es el que dejó pytest. Los demás son simulaciones de lo que haría cada etapa.</p>
+  </div>
+</div>
+
+<script>
+const FLUJOS = {
+  ci: {
+    etapas: [["calidad", "ruff: errores y formato"], ["pruebas", "pytest en 3.11, 3.12 y 3.13"], ["imagen", "construir y prueba de humo"]],
+    casos: [
+      ["Un cambio correcto", null, "Los tres trabajos pasan. El PR se puede integrar.", "Así se ve la ejecución 41256889959: cinco trabajos en verde en unos 40 segundos."],
+      ["Una variable que no se usa", 0, "servicio/__init__.py:12:5: F841 Local variable `tmp` is assigned to but never used", "El error más barato de detectar. Sin esta etapa, la revisión humana se gasta en lo que una herramienta ve sola."],
+      ["La respuesta de /salud cambia a mayúsculas", 1, "FAILED tests/test_servicio.py::test_salud - AssertionError: assert {'estado': 'OK'} == {'estado': 'ok'}\n1 failed, 2 passed", "Real: ejecución 41257272061. Rompía el contrato de la API. Sin la prueba, habría llegado a la imagen."],
+      ["Falla solo en Python 3.11", 1, "pruebas (3.11): failure · pruebas (3.12): success · pruebas (3.13): success", "La matriz existe para esto: un cambio que funciona en la máquina de quien lo escribió y no en la versión que usa producción."],
+      ["Una dependencia que falta en requirements.txt", 2, "ModuleNotFoundError: No module named 'requests'\nLa ruta /salud no responde ok", "Las pruebas pasaban porque el entorno de desarrollo la tenía instalada. Solo la imagen, construida desde cero, lo revela."]
+    ]
+  },
+  entrega: {
+    etapas: [["verificar", "etiqueta, versión y registro"], ["pruebas", "otra vez, sobre lo que se entrega"], ["publicar-imagen", "una sola construcción, a GHCR"], ["staging", "la imagen publicada, prueba de humo"], ["produccion", "aprobación y entrega"]],
+    casos: [
+      ["Etiqueta v0.2.0 bien preparada", null, "v0.2.0: formato, versión declarada y registro de cambios coinciden.\n… producción aprobada: entrega v0.2.0 publicada con sus notas y el digest de la imagen.", "La etiqueta, la imagen por digest y la entrega forman la línea base de entrega de la Unidad 2."],
+      ["Etiqueta v0.2 (sin parche)", 0, "La etiqueta no se puede publicar:\n  - La etiqueta «v0.2» no tiene el formato vMAYOR.MENOR.PARCHE", "Así respondió verificar_version.py en la prueba local. Nada se construye con una etiqueta mal formada."],
+      ["Se olvidó subir la versión en pyproject.toml", 0, "La etiqueta no se puede publicar:\n  - pyproject.toml declara 0.1.0, no 0.2.0\n  - servicio/__init__.py declara 0.1.0, no 0.2.0", "Sin esta verificación, la imagen 0.2.0 diría por /version que es la 0.1.0."],
+      ["Falta la sección en CHANGELOG.md", 0, "La etiqueta no se puede publicar:\n  - CHANGELOG.md no tiene una sección «## [0.2.0]»", "Una versión sin registro de cambios rompe la trazabilidad hacia quien la usa."],
+      ["La imagen publicada no arranca en staging", 3, "Esperando al servicio (intento 20)...\nLa ruta /salud no responde ok", "La imagen ya está publicada, pero no llega a producción. Por eso staging usa la misma imagen, por su digest."],
+      ["Nadie aprueba producción", 4, "Esperando la aprobación del entorno produccion…", "La autoridad de cambios de la Unidad 2, implementada como una regla del entorno."]
+    ]
+  }
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let flujo = "ci", tiempos = [];
+const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function pintarFlujo() {
+  const f = FLUJOS[flujo];
+  $("casos").innerHTML = f.casos.map((c, i) => `<button data-i="${i}" aria-pressed="false">${esc(c[0])}</button>`).join("");
+  $("etapas").innerHTML = f.etapas.map(([n, q]) => `<div class="etapa"><b>${esc(n)}</b><span class="que">${esc(q)}</span><span class="est">pendiente</span></div>`).join("");
+  $("registro").textContent = "Elija un cambio para ver el recorrido.";
+  $("leccion").classList.remove("visible");
+  document.querySelectorAll("#casos button").forEach(b => b.onclick = () => correr(+b.dataset.i, b));
+}
+
+function correr(i, boton) {
+  tiempos.forEach(clearTimeout); tiempos = [];
+  document.querySelectorAll("#casos button").forEach(b => b.setAttribute("aria-pressed", String(b === boton)));
+  const [, falla, registro, leccion] = FLUJOS[flujo].casos[i];
+  const etapas = [...document.querySelectorAll(".etapa")];
+  etapas.forEach(e => { e.className = "etapa"; e.querySelector(".est").textContent = "pendiente"; });
+  $("registro").textContent = "Ejecutando…";
+  $("leccion").classList.remove("visible");
+  const paso = reducido ? 0 : 550;
+  etapas.forEach((e, k) => {
+    tiempos.push(setTimeout(() => {
+      if (falla !== null && k > falla) { e.classList.add("omitida"); e.querySelector(".est").textContent = "omitida"; return; }
+      e.classList.add("corre"); e.querySelector(".est").textContent = flujo === "entrega" && k === 4 && falla === 4 ? "esperando" : "corriendo";
+      tiempos.push(setTimeout(() => {
+        if (flujo === "entrega" && k === 4 && falla === 4) return;
+        e.classList.remove("corre");
+        const fallo = k === falla;
+        e.classList.add(fallo ? "falla" : "ok");
+        e.querySelector(".est").textContent = fallo ? "falló" : "pasó";
+      }, paso * 0.8));
+    }, k * paso));
+  });
+  tiempos.push(setTimeout(() => {
+    $("registro").textContent = registro;
+    $("leccion").textContent = leccion;
+    $("leccion").classList.add("visible");
+  }, etapas.length * paso));
+}
+
+document.querySelectorAll(".pestanas button").forEach(b => b.onclick = () => {
+  flujo = b.dataset.f;
+  document.querySelectorAll(".pestanas button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  tiempos.forEach(clearTimeout);
+  pintarFlujo();
+});
+pintarFlujo();
+</script>
+</body>
+</html>
